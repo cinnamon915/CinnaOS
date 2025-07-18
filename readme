@@ -1,0 +1,92 @@
+<link rel="icon" type="image/png" href="oi.png">
+<div><img alt=""
+  src="data:image/png;base64,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"
+  width="296" height="81"
+  style="display: block; margin-left: auto; margin-right: auto;"></div>
+<h3><span data-preserver-spaces="true">Hello, I created a browser-based
+    operating system called CinnaOS. It features a DIY-made command prompt;
+    this entire project was handcrafted. Thank you for visiting. I spent
+    two full days on this project, and better updates are coming.
+    This</span><strong><span data-preserver-spaces="true"> is the first
+      version (version 1.0)</span></strong><span
+  data-preserver-spaces="true">.</span> lol trololo <a
+  href="https://www.youtube.com/watch?v=WBpLvR3Q9VE">https://www.youtube.com/watch?v=WBpLvR3Q9VE</a>
+</h3>
+<p>&nbsp;</p>
+<p>NEVER RUN sudo rm -rf /*<em> let me explain so i was dualbooting
+    Windows 10 and linux ubuntu I was curious about sudo rm -rf /* and then
+    i typed is and pressed enter and it started to delete as many files in
+    it;s it's path and then even touched windows</em> 10 and bricked my pc
+  now no ssd shows up and it keeps booting in bios/uefi</p>
+<p></p>
+
+<pDownload CinnaOS: <p>Try CinnaOS live in your browser:</p>
+<a href="https://cinnaos.neocities.org" target="_blank">Launch CinnaOS</a>
+<p>Or download the source code from GitHub:</p>
+<a href="https://github.com/cinnamon915/CinnaOS/archive/refs/heads/main.zip" download>Download CinnaOS Source</a>
+! </pDownload>
+<p><strong>cinnaos.neocities.org&nbsp; &nbsp; &nbsp;or&nbsp;</strong>
+  &nbsp; &nbsp;</p>
+<p><a
+  style="display: inline-block; width: 88px; height: 41px; background-color: #333333; color: #60a6ff; font-size: 20px; font-family: 'Courier New', monospace; text-align: center; line-height: 41px; text-decoration: none; border: 1px solid #555; box-shadow: inset 0 0 4px #60a6ff; box-sizing: border-box; overflow: hidden; white-space: nowrap;"
+  href="https://cinnaos.neocities.org" target="_blank" rel="noopener">
+    CinnaOS </a></p>
+<p>here is my 88px by 33px (i think) :&nbsp;</p>
+<p>&lt;a style="display: inline-block; width: 88px; height: 41px;
+  background-color: #333333; color: #60a6ff; font-size: 20px; font-family:
+  'Courier New', monospace; text-align: center; line-height: 41px;
+  text-decoration: none; border: 1px solid #555; box-shadow: inset 0 0 4px
+  #60a6ff; box-sizing: border-box; overflow: hidden; white-space: nowrap;"
+  href="https://cinnaos.neocities.org" target="_blank"&gt; CinnaOS
+  &lt;/a&gt;&lt;/p&gt;</p>
+<p>&nbsp;</p>
+<h2><span
+  style="background-color: #333399; color: #ffff00;"><strong><span
+      style="text-decoration: underline;">better updates
+        soon</span></strong></span></h2>
+<h3><span style="text-decoration: underline; color: #00ccff;">Happy 1,000
+    views! (1,000 views on neocities) yay!!</span></h3>
+<p><span style="text-decoration: underline; color: #00ccff;"><img
+    src="https://www.seriouseats.com/thmb/q67ofN0WLLb68mKvSvKNDg2q2b0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__recipes__images__2014__11__BakedOccasions_BirthdayCake-02af7038d93647d9a7339f0802b03079.jpg"
+    alt="" width="194" height="97"></span></p>
+<p>&nbsp;</p>
+<h3>Release date: May 30, 2025</h3>
+<h3>Go to CinnaOS: <a href="https://cinnaos.neocities.org/">here!</a>
+</h3>
+<h4>&nbsp;</h4>
+<h3>Let's support EletroTronics's youtube channel: <a
+  href="https://www.youtube.com/@EletroTronics">https://www.youtube.com/@EletroTronics</a>
+</h3>
+<p><a href="https://www.youtube.com/@EletroTronics" target="_blank"
+  rel="noopener"> <button
+    style="padding: 10px 20px; font-size: 16px; background-color: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      EletroTronics </button> </a></p>
+<p>&nbsp;</p>
+<h4><strong>The owner reviewing CinnaOS: I reviewed
+    cinnaos.neocities.org, and it's a charming simulated web-based
+    operating system! The interface features a retro aesthetic, complete
+    with a taskbar and various applications, including Terminal, Notepad,
+    Clock, Calendar, Settings, and Paint. Each app opens within the
+    browser, providing a nostalgic desktop-like experience.
+    cinnaos.neocities.org The Paint application allows for drawing directly
+    on the canvas, and the Save Drawing button functions correctly,
+    enabling you to download your artwork as a PNG file. The overall design
+    is cohesive and user-friendly, making it a delightful project to
+    explore. </strong></h4>
+<p><strong>&ldquo;CinnaOS's official wallpaper, shot by the dev
+    themselves"</strong></p>
+<p><strong>Pre-alpha </strong><span
+  data-huuid="17965127768389231999">This is the earliest stage, where the
+    OS is still under heavy development and may not be functional or
+    stable. </span><strong>Alpha </strong>This stage involves internal
+  testing and development, with features still being added and refined.
+  <strong>Beta </strong>A beta version is released to a larger group of
+  users (beta testers) for feedback on functionality, usability, and
+  stability.</p>
+<p><strong>Version Lists and major releases:</strong></p>
+<p><strong>CinnaOS version 1.0</strong></p>
+<p><strong>CinnaOS version 2.0</strong></p>
+<p><strong></strong></p>
+<p><strong></strong></p>
+<p><strong></strong></p>
+<p><strong></strong></p>
