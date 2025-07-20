@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" type="image/png" href="oi.png">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cookie Clicker - All Features</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f2e7dc;
+    color: #333;
+    text-align: center;
+    margin: 0; padding: 20px;
+  }
+  #cookie {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/6/69/Chocolate_Chip_Cookie.png') no-repeat center/cover;
+    border-radius: 50%;
+    border: 5px solid #a67c52;
+    cursor: pointer;
+    position: relative;
+  }
+  button {
+    font-size: 1em;
+    margin: 5px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #d4a373;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) {
+    background-color: #b97a56;
+  }
+  button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  #goldenCookie {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: gold;
+    border-radius: 50%;
+    border: 3px solid orange;
+    cursor: pointer;
+    display: none;
+    user-select: none;
+  }
+  #achievements {
+    margin-top: 20px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+  #achievements h3 {
+    margin-bottom: 5px;
+  }
+  #achievements ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  #achievements li {
+    background: #e0d4b8;
+    margin: 2px 0;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+  #prestigeShop {
+    margin-top: 20px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  textarea {
+    width: 80%;
+    height: 60px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Cookie Clicker - All Features</h1>
+
+<div id="cookie">
+  <div id="goldenCookie" title="Golden Cookie! Click for bonus!">✨</div>
+</div>
+
+<div id="count">Cookies: 0</div>
+<div id="cps">Cookies/sec: 0</div>
+<div id="prestige">Prestige Points: 0</div>
+
+<button id="rebirthBtn" disabled>Rebirth (1 Quadrillion required)</button>
+<button id="resetBtn">Reset Game (Full Wipe)</button>
+
+<div id="upgrades">
+  <button id="upgrade1">+1 Cookie/Click (Cost: 10)</button>
+  <button id="autoClicker">Auto-Clicker +1/sec (Cost: 50)</button>
+  <button id="grandma">Grandma +5/sec (Cost: 500)</button>
+  <button id="factory">Factory +20/sec (Cost: 5000)</button>
+  <button id="farm">Farm +100/sec (Cost: 20000)</button>
+  <button id="mine">Mine +500/sec (Cost: 100000)</button>
+</div>
+
+<div id="prestigeShop">
+  <h3>Prestige Shop (Spend Prestige Points)</h3>
+  <button id="prestigeUpgrade1">+1 Cookie/Click Permanently (Cost: 5)</button>
+  <button id="prestigeUpgrade2">+10% Passive Income (Cost: 10)</button>
+</div>
+
+<div style="margin-top:20px;">
+  <textarea id="saveData" placeholder="Save data here..."></textarea><br/>
+  <button id="exportBtn">Export Save</button>
+  <button id="importBtn">Import Save</button>
+</div>
+
+<div id="achievements">
+  <h3>Achievements</h3>
+  <ul id="achievementList"></ul>
+</div>
+
+<script>
+(() => {
+  // Variables
+  let cookies = 0;
+  let cookiesPerClick = 1;
+  let autoClickers = 0;
+  let grandmas = 0;
+  let factories = 0;
+  let farms = 0;
+  let mines = 0;
+  let prestigePoints = 0;
+  let prestigeClickBonus = 0;
+  let prestigePassiveBonus = 0; // percent
+  let totalClicks = 0;
+  let totalCookiesEarned = 0;
+  let goldenCookieActive = false;
+
+  const QUADRILLION = 1e15;
+
+  // Elements
+  const cookieElem = document.getElementById('cookie');
+  const goldenCookieElem = document.getElementById('goldenCookie');
+  const countElem = document.getElementById('count');
+  const cpsElem = document.getElementById('cps');
+  const prestigeElem = document.getElementById('prestige');
+  const rebirthBtn = document.getElementById('rebirthBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const upgrade1Btn = document.getElementById('upgrade1');
+  const autoClickerBtn = document.getElementById('autoClicker');
+  const grandmaBtn = document.getElementById('grandma');
+  const factoryBtn = document.getElementById('factory');
+  const farmBtn = document.getElementById('farm');
+  const mineBtn = document.getElementById('mine');
+  const prestigeUpgrade1Btn = document.getElementById('prestigeUpgrade1');
+  const prestigeUpgrade2Btn = document.getElementById('prestigeUpgrade2');
+  const achievementList = document.getElementById('achievementList');
+  const saveData = document.getElementById('saveData');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+
+  // Costs base
+  const baseCosts = {
+    upgrade1: 10,
+    autoClicker: 50,
+    grandma: 500,
+    factory: 5000,
+    farm: 20000,
+    mine: 100000,
+    prestigeUpgrade1: 5,
+    prestigeUpgrade2: 10
+  };
+
+  // Achievement definitions
+  const achievements = [
+    { id: 'click10', name: "Clicked 10 times", condition: () => totalClicks >= 10 },
+    { id: 'click100', name: "Clicked 100 times", condition: () => totalClicks >= 100 },
+    { id: 'cookies1k', name: "Earned 1,000 cookies", condition: () => totalCookiesEarned >= 1000 },
+    { id: 'cookies1m', name: "Earned 1 million cookies", condition: () => totalCookiesEarned >= 1e6 },
+    { id: 'own10grandmas', name: "Own 10 grandmas", condition: () => grandmas >= 10 },
+    { id: 'rebirth1', name: "First Rebirth", condition: () => prestigePoints >= 1 },
+  ];
+  let unlockedAchievements = new Set();
+
+  // Utility functions
+  function formatNumber(num) {
+    if (num < 1e6) return num.toFixed(0);
+    if (num < 1e9) return (num / 1e6).toFixed(2) + 'M';
+    if (num < 1e12) return (num / 1e9).toFixed(2) + 'B';
+    if (num < 1e15) return (num / 1e12).toFixed(2) + 'T';
+    return (num / 1e15).toFixed(2) + 'Q';
+  }
+  function costFormula(base, count) {
+    return Math.floor(base * Math.pow(1.15, count));
+  }
+
+  // Calculate cookie per second (passive)
+  function getPassiveIncome() {
+    let base = autoClickers * 1 + grandmas * 5 + factories * 20 + farms * 100 + mines * 500;
+    base = base * (1 + prestigePassiveBonus / 100);
+    return base;
+  }
+
+  // Update all UI
+  function updateUI() {
+    countElem.textContent = `Cookies: ${formatNumber(cookies)}`;
+    prestigeElem.textContent = `Prestige Points: ${prestigePoints}`;
+    cpsElem.textContent = `Cookies/sec: ${formatNumber(getPassiveIncome())}`;
+    rebirthBtn.disabled = cookies < QUADRILLION;
+
+    upgrade1Btn.textContent = `+1 Cookie/Click (Cost: ${formatNumber(costFormula(baseCosts.upgrade1, cookiesPerClick - 1))})`;
+    autoClickerBtn.textContent = `Auto-Clicker +1/sec (Cost: ${formatNumber(costFormula(baseCosts.autoClicker, autoClickers))})`;
+    grandmaBtn.textContent = `Grandma +5/sec (Cost: ${formatNumber(costFormula(baseCosts.grandma, grandmas))})`;
+    factoryBtn.textContent = `Factory +20/sec (Cost: ${formatNumber(costFormula(baseCosts.factory, factories))})`;
+    farmBtn.textContent = `Farm +100/sec (Cost: ${formatNumber(costFormula(baseCosts.farm, farms))})`;
+    mineBtn.textContent = `Mine +500/sec (Cost: ${formatNumber(costFormula(baseCosts.mine, mines))})`;
+
+    prestigeUpgrade1Btn.textContent = `+1 Cookie/Click Permanently (Cost: ${baseCosts.prestigeUpgrade1})`;
+    prestigeUpgrade2Btn.textContent = `+10% Passive Income (Cost: ${baseCosts.prestigeUpgrade2})`;
+
+    updateAchievementsUI();
+  }
+
+  // Save game
+  function saveGame() {
+    localStorage.setItem('cookieClickerSave', JSON.stringify({
+      cookies, cookiesPerClick, autoClickers, grandmas, factories, farms, mines,
+      prestigePoints, prestigeClickBonus, prestigePassiveBonus,
+      totalClicks, totalCookiesEarned,
+      unlockedAchievements: [...unlockedAchievements],
+      lastSavedTime: Date.now()
+    }));
+  }
+
+  // Load game + offline progress
+  function loadGame() {
+    const save = JSON.parse(localStorage.getItem('cookieClickerSave'));
+    if (save) {
+      cookies = save.cookies || 0;
+      cookiesPerClick = save.cookiesPerClick || 1;
+      autoClickers = save.autoClickers || 0;
+      grandmas = save.grandmas || 0;
+      factories = save.factories || 0;
+      farms = save.farms || 0;
+      mines = save.mines || 0;
+      prestigePoints = save.prestigePoints || 0;
+      prestigeClickBonus = save.prestigeClickBonus || 0;
+      prestigePassiveBonus = save.prestigePassiveBonus || 0;
+      totalClicks = save.totalClicks || 0;
+      totalCookiesEarned = save.totalCookiesEarned || 0;
+      unlockedAchievements = new Set(save.unlockedAchievements || []);
+
+      // Offline progress
+      if (save.lastSavedTime) {
+        const now = Date.now();
+        const secondsAway = Math.floor((now - save.lastSavedTime) / 1000);
+        if (secondsAway > 0) {
+          const gain = secondsAway * getPassiveIncome();
+          cookies += gain;
+          alert(`While you were gone for ${secondsAway} seconds, you earned ${formatNumber(gain)} cookies!`);
+        }
+      }
+    }
+  }
+
+  // Check achievements
+  function checkAchievements() {
+    let newUnlocked = [];
+    achievements.forEach(a => {
+      if (!unlockedAchievements.has(a.id) && a.condition()) {
+        unlockedAchievements.add(a.id);
+        newUnlocked.push(a.name);
+      }
+    });
+    if (newUnlocked.length > 0) {
+      alert("Achievements unlocked:\n" + newUnlocked.join("\n"));
+    }
+  }
+
+  function updateAchievementsUI() {
+    achievementList.innerHTML = '';
+    achievements.forEach(a => {
+      const li = document.createElement('li');
+      li.textContent = unlockedAchievements.has(a.id) ? `✔ ${a.name}` : `✘ ${a.name}`;
+      achievementList.appendChild(li);
+    });
+  }
+
+  // Golden cookie logic
+  function spawnGoldenCookie() {
+    if (goldenCookieActive) return; // Only one at a time
+    goldenCookieActive = true;
+    const gc = goldenCookieElem;
+    gc.style.display = 'block';
+
+    // Random position inside #cookie
+    const maxPos = 120;
+    gc.style.top = Math.random() * maxPos + 'px';
+    gc.style.left = Math.random() * maxPos + 'px';
+
+    // Timeout for disappearance after 10s
+    setTimeout(() => {
+      if (goldenCookieActive) {
+        goldenCookieActive = false;
+        gc.style.display = 'none';
+      }
+    }, 10000);
+  }
+
+  goldenCookieElem.onclick = () => {
+    if (!goldenCookieActive) return;
+    goldenCookieActive = false;
+    goldenCookieElem.style.display = 'none';
+
+    const bonus = 1000 + Math.floor(Math.random() * 4000); // 1k-5k cookies bonus
+    cookies += bonus;
+    alert(`Golden Cookie! You got +${formatNumber(bonus)} cookies!`);
+    updateUI();
+    saveGame();
+  };
+
+  // Button handlers
+  cookieElem.onclick = () => {
+    cookies += cookiesPerClick + prestigeClickBonus;
+    totalClicks++;
+    totalCookiesEarned += cookiesPerClick + prestigeClickBonus;
+    updateUI();
+    saveGame();
+    checkAchievements();
+  };
+
+  upgrade1Btn.onclick = () => {
+    const cost = costFormula(baseCosts.upgrade1, cookiesPerClick - 1);
+    if (cookies >= cost) {
+      cookies -= cost;
+      cookiesPerClick++;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough cookies!");
+    }
+  };
+
+  autoClickerBtn.onclick = () => {
+    const cost = costFormula(baseCosts.autoClicker, autoClickers);
+    if (cookies >= cost) {
+      cookies -= cost;
+      autoClickers++;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough cookies!");
+    }
+  };
+
+  grandmaBtn.onclick = () => {
+    const cost = costFormula(baseCosts.grandma, grandmas);
+    if (cookies >= cost) {
+      cookies -= cost;
+      grandmas++;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough cookies!");
+    }
+  };
+
+  factoryBtn.onclick = () => {
+    const cost = costFormula(baseCosts.factory, factories);
+    if (cookies >= cost) {
+      cookies -= cost;
+      factories++;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough cookies!");
+    }
+  };
+
+  farmBtn.onclick = () => {
+    const cost = costFormula(baseCosts.farm, farms);
+    if (cookies >= cost) {
+      cookies -= cost;
+      farms++;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough cookies!");
+    }
+  };
+
+  mineBtn.onclick = () => {
+    const cost = costFormula(baseCosts.mine, mines);
+    if (cookies >= cost) {
+      cookies -= cost;
+      mines++;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough cookies!");
+    }
+  };
+
+  rebirthBtn.onclick = () => {
+    if (cookies >= QUADRILLION) {
+      const gainedPrestige = Math.floor(cookies / QUADRILLION);
+      prestigePoints += gainedPrestige;
+      cookies = 0;
+      cookiesPerClick = 1;
+      autoClickers = 0;
+      grandmas = 0;
+      factories = 0;
+      farms = 0;
+      mines = 0;
+      prestigeClickBonus = 0;
+      prestigePassiveBonus = 0;
+      updateUI();
+      saveGame();
+      alert(`You rebirthed and gained ${gainedPrestige} prestige points!`);
+      checkAchievements();
+    }
+  };
+
+  resetBtn.onclick = () => {
+    if (confirm("Are you sure you want to reset everything? This cannot be undone.")) {
+      cookies = 0;
+      cookiesPerClick = 1;
+      autoClickers = 0;
+      grandmas = 0;
+      factories = 0;
+      farms = 0;
+      mines = 0;
+      prestigePoints = 0;
+      prestigeClickBonus = 0;
+      prestigePassiveBonus = 0;
+      totalClicks = 0;
+      totalCookiesEarned = 0;
+      unlockedAchievements.clear();
+      localStorage.removeItem('cookieClickerSave');
+      updateUI();
+      saveGame();
+      alert("Game reset!");
+    }
+  };
+
+  // Prestige shop buttons
+  prestigeUpgrade1Btn.onclick = () => {
+    if (prestigePoints >= baseCosts.prestigeUpgrade1) {
+      prestigePoints -= baseCosts.prestigeUpgrade1;
+      prestigeClickBonus++;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough prestige points!");
+    }
+  };
+
+  prestigeUpgrade2Btn.onclick = () => {
+    if (prestigePoints >= baseCosts.prestigeUpgrade2) {
+      prestigePoints -= baseCosts.prestigeUpgrade2;
+      prestigePassiveBonus += 10;
+      updateUI();
+      saveGame();
+    } else {
+      alert("Not enough prestige points!");
+    }
+  };
+
+  // Passive income timer
+  setInterval(() => {
+    let gain = getPassiveIncome();
+    cookies += gain;
+    totalCookiesEarned += gain;
+    updateUI();
+    saveGame();
+    checkAchievements();
+  }, 1000);
+
+  // Golden cookie spawner timer (random interval between 20s-40s)
+  setInterval(() => {
+    if (!goldenCookieActive) spawnGoldenCookie();
+  }, 20000 + Math.random() * 20000);
+
+  // Export/Import
+  exportBtn.onclick = () => {
+    saveData.value = localStorage.getItem('cookieClickerSave');
+  };
+  importBtn.onclick = () => {
+    if (confirm("Importing save will overwrite your current progress. Continue?")) {
+      try {
+        const data = JSON.parse(saveData.value);
+        localStorage.setItem('cookieClickerSave', JSON.stringify(data));
+        loadGame();
+        updateUI();
+        alert("Save imported!");
+      } catch {
+        alert("Invalid save data.");
+      }
+    }
+  };
+
+  // Initial load
+  loadGame();
+  updateUI();
+
+  // Save every 15 seconds
+  setInterval(saveGame, 15000);
+})();
+</script>
+
+</body>
+</html>
