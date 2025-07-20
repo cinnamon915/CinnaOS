@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CinnaPrompt</title>
+  <link rel="icon" href="oi.png" type="image/png">
+  <style>
+    body {
+      background-color: #111;
+      color: #0f0;
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 1.1rem;
+    }
+
+    #input-container {
+      display: flex;
+      padding: 10px 16px;
+      background: #000;
+      border-bottom: 1px solid #222;
+      display: none;
+    }
+
+    .prefix {
+      margin-right: 8px;
+    }
+
+    #command-input {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-family: monospace;
+      flex: 1;
+      outline: none;
+      font-size: 1.1rem;
+    }
+
+    #terminal {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    #output {
+      white-space: pre-wrap;
+    }
+
+    #login-screen {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      color: #0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    #login-screen input {
+      margin-top: 10px;
+      background: #111;
+      color: #0f0;
+      border: none;
+      padding: 6px 12px;
+      font-family: monospace;
+      font-size: 1.1rem;
+    }
+
+    body.light {
+      background-color: #f0f0f0;
+      color: #00ff1b;
+    }
+
+    body.light #command-input {
+      color: #222;
+    }
+
+    body.matrix {
+      background-color: #000;
+      color: #0f0;
+    }
+
+    body.matrix #command-input {
+      color: #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="login-screen">
+    <div>Welcome to CinnaPrompt</div>
+    <div>Enter your username to begin:</div>
+    <input type="text" id="login-input" />
+  </div>
+
+  <div id="input-container">
+    <span class="prefix" id="prompt">user@os:~$</span>
+    <input type="text" id="command-input" autofocus />
+  </div>
+  <div id="terminal">
+    <div id="output"></div>
+  </div>
+
+  <script>
+    const input = document.getElementById('command-input');
+    const output = document.getElementById('output');
+    const terminal = document.getElementById('terminal');
+    const loginInput = document.getElementById('login-input');
+    const loginScreen = document.getElementById('login-screen');
+    const promptLabel = document.getElementById('prompt');
+    const inputContainer = document.getElementById('input-container');
+
+    let history = [];
+    let historyIndex = -1;
+    let username = 'user';
+    const startTime = Date.now();
+
+    const commands = {
+      help: `Available commands:
+help           - Show this help text
+clear          - Clear the screen
+about          - About CinnaPrompt
+echo [text]    - Print text
+date           - Show current date and time
+theme [t]      - Set theme: dark, light, matrix
+whoami         - Show current user
+random         - Print a random number
+reverse [text] - Print reversed text
+color [r g b]  - Set text color via RGB
+bgcolor [r g b]- Set background color via RGB
+hi             - Say hello
+hello          - Say hello
+uptime         - Show how long this session has been running
+rickroll       - ???`,
+
+      clear: () => { output.innerHTML = ''; },
+      about: "CinnaPrompt v2.0\nA custom command-line interface for CinnaOS.",
+      echo: args => args.join(' '),
+      date: () => new Date().toString(),
+      theme: args => {
+        const theme = args[0];
+        if (['dark', 'light', 'matrix'].includes(theme)) {
+          document.body.className = theme;
+          return `Theme set to ${theme}`;
+        } else {
+          return "Invalid theme. Try: dark, light, matrix";
+        }
+      },
+      whoami: () => username,
+      random: () => "Random number: " + Math.floor(Math.random() * 1000000),
+      reverse: args => args.join(' ').split('').reverse().join(''),
+      color: args => {
+        if (args.length !== 3) return "Usage: color [r g b]";
+        const [r, g, b] = args.map(Number);
+        if ([r, g, b].some(n => isNaN(n) || n < 0 || n > 255)) {
+          return "RGB values must be 0-255.";
+        }
+        document.body.style.color = `rgb(${r}, ${g}, ${b})`;
+        input.style.color = `rgb(${r}, ${g}, ${b})`;
+        return `Text color set to rgb(${r}, ${g}, ${b})`;
+      },
+      bgcolor: args => {
+        if (args.length !== 3) return "Usage: bgcolor [r g b]";
+        const [r, g, b] = args.map(Number);
+        if ([r, g, b].some(n => isNaN(n) || n < 0 || n > 255)) {
+          return "RGB values must be 0-255.";
+        }
+        document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        return `Background color set to rgb(${r}, ${g}, ${b})`;
+      },
+      hi: () => `Hello, ${username}!`,
+      hello: () => `Hello, ${username}!`,
+      uptime: () => {
+        const ms = Date.now() - startTime;
+        const sec = Math.floor(ms / 1000);
+        const min = Math.floor(sec / 60);
+        const hrs = Math.floor(min / 60);
+        const seconds = sec % 60;
+        const minutes = min % 60;
+        const hours = hrs;
+        return `Uptime: ${hours > 0 ? hours + 'h ' : ''}${minutes}m ${seconds}s`;
+      },
+      rickroll: () => {
+        return `
+Never gonna give you up,
+Never gonna let you down,
+Never gonna run around and desert you!
+
+🎵 Rick Astley - Never Gonna Give You Up 🎵
+
+Watch it here: https://youtu.be/dQw4w9WgXcQ
+`;
+      }
+    };
+
+    function runCommand(rawLine) {
+      const parts = rawLine.split(';');
+      for (let raw of parts) {
+        const args = raw.trim().split(' ');
+        const cmd = args.shift().toLowerCase();
+        const prefix = `<div><span class="prefix">${username}@os:~$</span> ${raw}</div>`;
+        let result;
+        if (commands[cmd]) {
+          result = typeof commands[cmd] === 'function' ? commands[cmd](args) : commands[cmd];
+        } else {
+          result = `Command not found: ${cmd}`;
+        }
+        output.innerHTML = `<div>${prefix}</div><div>${result}</div>` + output.innerHTML;
+      }
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const raw = input.value;
+        if (raw) {
+          history.push(raw);
+          historyIndex = history.length;
+        }
+        runCommand(raw);
+        input.value = '';
+      } else if (e.key === 'ArrowUp') {
+        if (historyIndex > 0) {
+          historyIndex--;
+          input.value = history[historyIndex];
+        }
+      } else if (e.key === 'ArrowDown') {
+        if (historyIndex < history.length - 1) {
+          historyIndex++;
+          input.value = history[historyIndex];
+        } else {
+          input.value = '';
+          historyIndex = history.length;
+        }
+      }
+    });
+
+    loginInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const name = loginInput.value.trim();
+        if (name) {
+          username = name;
+          promptLabel.textContent = `${username}@os:~$`;
+          loginScreen.style.display = 'none';
+          inputContainer.style.display = 'flex';
+          input.focus();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
