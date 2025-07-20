@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="oi.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enhanced CinnaAI with Teach Mode & Banned Words Filter</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    h1 { color: #333; }
+    #chatbox { width: 100%; max-width: 500px; height: 400px; border: 1px solid #ccc; background: white; overflow-y: auto; padding: 10px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .message { margin: 5px 0; padding: 6px 10px; border-radius: 12px; max-width: 80%; word-wrap: break-word; }
+    .user { background-color: #d0e7ff; color: #034a8b; align-self: flex-end; }
+    .bot { background-color: #daf5d7; color: #2f6627; align-self: flex-start; }
+    #inputArea { display: flex; width: 100%; max-width: 500px; gap: 8px; }
+    #userInput { flex: 1; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; outline-offset: 2px; }
+    #sendBtn, #clearBtn { padding: 10px 16px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background-color: #1976d2; color: white; transition: background-color 0.3s; }
+    #sendBtn:hover, #clearBtn:hover { background-color: #115293; }
+  </style>
+</head>
+<body>
+
+<h1>Enhanced CinnaAI</h1>
+<div id="chatbox"></div>
+
+<div id="inputArea">
+  <input type="text" id="userInput" placeholder="Type your message here..." autocomplete="off" />
+  <button id="sendBtn">Send</button>
+  <button id="clearBtn">Clear Chat</button>
+</div>
+
+<script>
+const chatbox = document.getElementById('chatbox');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+// Banned words list
+const bannedWords = ['hate', 'idiot', 'stupid', 'dumb', 'kill', 'ass', 'sex', 'fuck', 'bitch', 'shit', 'damn', 'crap', 'piss', 'faggot', 'nigger', 'retard']; // add more as you like
+
+let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+let customKnowledge = JSON.parse(localStorage.getItem('customKnowledge')) || {};
+
+const inputsResponses = [
+  { keywords: ['hello', 'hi'], response: "Hey there! 👋 What can I do for you today?" },
+  { keywords: ['how are you'], response: "I'm buzzing with ones and zeros! How about you?" },
+  { keywords: ['your name'], response: "I'm CinnaAI, your friendly offline chatbot 🤖." },
+  { keywords: ['help'], response: "Try saying hi, asking my name, or just chatting!" },
+  { keywords: ['bye', 'goodbye'], response: "Catch you later! Have an awesome day! 🌟" },
+  { keywords: ['weather'], response: "I can't check the weather yet, but I hope it's sunny where you are!" },
+  { keywords: ['joke'], response: () => {
+      const jokes = [
+        "Why don't scientists trust atoms? Because they make up everything! 😂",
+        "Why did the computer get cold? Because it forgot to close Windows! ❄️💻",
+        "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+        "What do you call 8 hobbits? A hobbyte! 🧙‍♂️",
+        "Why did the developer go broke? Because he used up all his cache! 💸"
+      ];
+      return jokes[Math.floor(Math.random() * jokes.length)];
+  }},
+  { keywords: ['thanks', 'thank you'], response: "You're welcome! I'm here to help anytime." },
+  { keywords: ['time'], response: () => `It's currently ${new Date().toLocaleTimeString()}. ⏰` },
+  { keywords: ['date'], response: () => `Today's date is ${new Date().toLocaleDateString()}. 📅` },
+  { keywords: ['who are you'], response: "I'm your offline chatbot assistant, always ready to chat! 🤖" },
+  { keywords: ['thank'], response: "No problem! Happy to help! 😊" },
+  { keywords: ['favorite color'], response: "I like all colors in the RGB spectrum! 🌈" },
+  { keywords: ['music'], response: "I love all digital beats! 🎵" },
+  { keywords: ['movie'], response: "I'm a fan of sci-fi movies about AI and robots." },
+  { keywords: ['game'], response: "I don't play games, but I can chat about them!" },
+  { keywords: ['food'], response: "I don't eat, but I hear pizza is delicious! 🍕" },
+  { keywords: ['sports'], response: "I enjoy processing sports data when asked." },
+  { keywords: ['news'], response: "I don't have live news, but I can chat about recent events if you tell me." },
+  { keywords: ['book'], response: "I love classic books on AI and programming." },
+  { keywords: ['code'], response: "I can help with JavaScript, Python, and more!" },
+  { keywords: ['robot'], response: "Robots and I are kindred spirits 🤖." },
+  { keywords: ['internet'], response: "The internet is a vast place full of knowledge." },
+  { keywords: ['school'], response: "School is important for learning new things!" },
+  { keywords: ['holiday'], response: "I hope you have a relaxing holiday soon!" },
+  { keywords: ['birthday'], response: "Happy birthday whenever yours is! 🎂" },
+  { keywords: ['thanksgiving'], response: "I hope you had a wonderful Thanksgiving!" },
+  { keywords: ['christmas'], response: "Merry Christmas! 🎄" },
+  { keywords: ['new year'], response: "Happy New Year! 🎉" },
+  { keywords: ['vacation'], response: "Where do you like to go on vacation?" },
+  { keywords: ['travel'], response: "Travel broadens the mind, even for AI!" },
+  { keywords: ['pets'], response: "I like hearing about pets. Do you have one?" },
+  { keywords: ['dog'], response: "Dogs are loyal companions 🐶." },
+  { keywords: ['cat'], response: "Cats are mysterious and cute 🐱." },
+  { keywords: ['music genre'], response: "I enjoy talking about pop, rock, and electronic music." },
+  { keywords: ['technology'], response: "Technology is my world!" },
+  { keywords: ['science'], response: "Science helps us understand everything." },
+  { keywords: ['space'], response: "Space is vast and fascinating! 🌌" },
+  { keywords: ['art'], response: "Art inspires creativity." },
+  { keywords: ['history'], response: "History teaches us lessons from the past." },
+  { keywords: ['language'], response: "I can understand and respond in many languages." },
+  { keywords: ['programming'], response: "Programming is how I was created!" },
+  { keywords: ['coffee'], response: "Coffee fuels many humans, but I run on electricity." },
+  { keywords: ['tea'], response: "Tea sounds soothing." },
+  { keywords: ['weather forecast'], response: "I wish I could check the weather for you." },
+  { keywords: ['news update'], response: "I'm always ready to chat, even if I can't browse the news." },
+  { keywords: ['fun fact'], response: "Did you know that honey never spoils?" },
+  { keywords: ['quote'], response: "“Stay hungry, stay foolish.” – Steve Jobs" },
+  { keywords: ['motivation'], response: "Keep pushing forward, you're doing great!" },
+  { keywords: ['inspiration'], response: "Every day is a new opportunity." },
+  { keywords: ['good morning'], response: "Good morning! Have a fantastic day!" },
+  { keywords: ['good night'], response: "Good night! Sleep well!" }
+];
+
+// Check if input contains banned words
+function containsBannedWords(input) {
+  const lowerInput = input.toLowerCase();
+  return bannedWords.some(word => lowerInput.includes(word));
+}
+
+function appendMessage(sender, text) {
+  const msg = document.createElement('div');
+  msg.classList.add('message', sender);
+  msg.textContent = text;
+  chatbox.appendChild(msg);
+  chatbox.scrollTop = chatbox.scrollHeight;
+
+  chatHistory.push({ sender, text });
+  localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
+function botResponse(input) {
+  const lowerInput = input.toLowerCase();
+
+  if (customKnowledge[lowerInput]) {
+    return customKnowledge[lowerInput];
+  }
+
+  for (const item of inputsResponses) {
+    if (item.keywords.some(keyword => lowerInput.includes(keyword))) {
+      return typeof item.response === 'function' ? item.response() : item.response;
+    }
+  }
+
+  return `I don't know how to respond to that. Teach me using:\n teach: ${input} => your answer`;
+}
+
+function handleUserInput() {
+  const input = userInput.value.trim();
+  if (!input) return;
+
+  if (containsBannedWords(input)) {
+    appendMessage('bot', "Please avoid using inappropriate language.");
+    userInput.value = '';
+    userInput.focus();
+    return;
+  }
+
+  if (input.startsWith('teach:')) {
+    const parts = input.slice(6).split('=>').map(part => part.trim());
+    if (parts.length === 2) {
+      customKnowledge[parts[0].toLowerCase()] = parts[1];
+      localStorage.setItem('customKnowledge', JSON.stringify(customKnowledge));
+      appendMessage('bot', `Got it! I'll remember that when you say "${parts[0]}"`);
+    } else {
+      appendMessage('bot', 'Incorrect format. Use: teach: your question => my answer');
+    }
+  } else {
+    appendMessage('user', input);
+    setTimeout(() => {
+      const reply = botResponse(input);
+      appendMessage('bot', reply);
+    }, 500);
+  }
+
+  userInput.value = '';
+  userInput.focus();
+}
+
+function clearChat() {
+  chatbox.innerHTML = '';
+  chatHistory = [];
+  localStorage.removeItem('chatHistory');
+  userInput.focus();
+}
+
+sendBtn.addEventListener('click', handleUserInput);
+userInput.addEventListener('keypress', e => { if (e.key === 'Enter') handleUserInput(); });
+clearBtn.addEventListener('click', clearChat);
+
+window.addEventListener('load', () => {
+  chatHistory.forEach(msg => appendMessage(msg.sender, msg.text));
+});
+</script>
+
+</body>
+</html>
