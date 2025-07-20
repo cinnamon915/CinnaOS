@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" type="image/png" href="oi.png">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CinnaOS File Explorer - Windows XP Style with Recycle Bin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tahoma&display=swap');
+  body {
+    margin: 0;
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    background: #008080;
+    user-select: none;
+    color: #000;
+    overflow: hidden;
+  }
+
+  #fileExplorerWindow {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 700px;
+    height: 500px;
+    border: 2px solid #808080;
+    box-shadow: 5px 5px 10px #004040 inset;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    cursor: default;
+  }
+
+  .explorer {
+    display: flex;
+    flex: 1;
+    box-sizing: border-box;
+  }
+
+  nav.sidebar {
+    width: 220px;
+    background: #c0c0c0;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #808080;
+    box-sizing: border-box;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+  nav.sidebar h2 {
+    margin: 0 0 10px 0;
+    font-weight: normal;
+    font-size: 14px;
+    color: #000080;
+    user-select: text;
+  }
+  ul.folder-list {
+    list-style: none;
+    padding-left: 4px;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px inset #fff;
+    background: #e0e0e0;
+  }
+  ul.folder-list li {
+    padding: 3px 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-size: 13px;
+    color: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  ul.folder-list li:hover {
+    background: #000080;
+    color: #fff;
+  }
+  ul.folder-list li.active {
+    background: #000080;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  section.main-panel {
+    flex: 1;
+    background: #fff;
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #808080;
+    border-right: 2px solid #808080;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #titleBar {
+    background: linear-gradient(to bottom, #0a246a, #084085);
+    color: #fff;
+    font-weight: bold;
+    padding: 6px 12px;
+    font-size: 14px;
+    user-select: none;
+    cursor: move;
+    border-bottom: 1px solid #000080;
+    box-shadow:
+      inset 0 1px 0 #0e3ca9,
+      inset 0 -1px 2px #042353;
+  }
+
+  .toolbar {
+    background: linear-gradient(to bottom, #0a246a, #084085);
+    color: #fff;
+    font-weight: bold;
+    padding: 3px 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    font-size: 14px;
+    border-bottom: 1px solid #000080;
+    box-shadow:
+      inset 0 1px 0 #0e3ca9,
+      inset 0 -1px 2px #042353;
+  }
+
+  button.back-btn, button.upload-btn, button.new-folder-btn {
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-weight: normal;
+    padding: 2px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #000;
+    user-select: none;
+    box-shadow: 1px 1px 0 #fff, -1px -1px 0 #808080 inset;
+    transition: all 0.1s;
+  }
+  button.back-btn:disabled {
+    color: #808080;
+    border: 2px outset #a0a0a0;
+    cursor: default;
+    box-shadow: none;
+  }
+  button.back-btn:active:not(:disabled),
+  button.upload-btn:active,
+  button.new-folder-btn:active {
+    border: 2px inset #fff;
+    box-shadow: inset 1px 1px 0 #808080;
+  }
+  button.back-btn:hover:not(:disabled),
+  button.upload-btn:hover,
+  button.new-folder-btn:hover {
+    background: #e5e5e5;
+  }
+
+  .path {
+    flex-grow: 1;
+    color: #fff;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: text;
+  }
+
+  .file-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(96px,1fr));
+    gap: 8px;
+    padding: 8px;
+    overflow-y: auto;
+    background: #fff;
+  }
+
+  .file-item {
+    background: #fff;
+    border: 1px solid transparent;
+    padding: 6px 4px 4px 4px;
+    border-radius: 0;
+    cursor: pointer;
+    color: #000;
+    text-align: center;
+    font-size: 12px;
+    user-select: none;
+    box-shadow:
+      inset 0 1px 0 #fff,
+      0 1px 1px #aaa;
+    position: relative;
+  }
+  .file-item:hover {
+    border: 1px solid #0a246a;
+    background: #cce0ff;
+    box-shadow:
+      inset 0 1px 0 #aaccee,
+      0 1px 2px #3162bb;
+  }
+  .file-icon {
+    font-size: 48px;
+    margin-bottom: 4px;
+    user-select: none;
+  }
+  .file-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-thumbnail {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    margin-bottom: 4px;
+    border: 1px solid #808080;
+  }
+
+  /* Delete button on each file */
+  .delete-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 0 5px;
+    cursor: pointer;
+    opacity: 0.7;
+    user-select: none;
+    transition: opacity 0.2s;
+  }
+  .delete-btn:hover {
+    opacity: 1;
+  }
+
+  /* Scrollbar styled for XP look */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #c0c0c0;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #808080;
+    border: 2px solid #c0c0c0;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #606060;
+  }
+</style>
+</head>
+<body>
+
+<div id="fileExplorerWindow" role="dialog" aria-label="File Explorer Window">
+  <div id="titleBar" tabindex="0">CinnaOS File Explorer</div>
+  <div class="explorer" role="main" aria-label="File Explorer">
+    <nav class="sidebar" aria-label="Folder List">
+      <h2>Folders</h2>
+      <ul class="folder-list" id="sidebarFolders" role="list">
+      </ul>
+    </nav>
+    <section class="main-panel" aria-label="File List">
+      <div class="toolbar" role="toolbar" aria-label="Explorer Toolbar">
+        <button class="back-btn" id="backBtn" aria-label="Go Back" disabled>⬅ Back</button>
+        <button class="upload-btn" id="uploadBtn" aria-label="Upload Images">Upload Images</button>
+        <button class="new-folder-btn" id="newFolderBtn" aria-label="Create New Folder">New Folder</button>
+        <input type="file" id="imageInput" accept="image/*" multiple style="display:none" aria-hidden="true" />
+        <span class="path" id="currentPath" aria-live="polite" aria-atomic="true">/</span>
+      </div>
+      <div class="file-list" id="fileList" role="list"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const maxImages = 5;
+
+  const fileExplorerWindow = document.getElementById('fileExplorerWindow');
+  const titleBar = document.getElementById('titleBar');
+  const sidebarFolders = document.getElementById('sidebarFolders');
+  const fileList = document.getElementById('fileList');
+  const backBtn = document.getElementById('backBtn');
+  const currentPathSpan = document.getElementById('currentPath');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const newFolderBtn = document.getElementById('newFolderBtn');
+  const imageInput = document.getElementById('imageInput');
+
+  // Default FS with Recycle Bin added
+  function defaultFileSystem() {
+    return {
+      "Home": {
+        "Documents": {
+          "Resume.pdf": "file",
+          "Project.docx": "file",
+          "Photos": {
+            "vacation.jpg": { type: 'image', data: '' },
+            "family.png": { type: 'image', data: '' }
+          }
+        },
+        "Downloads": {
+          "setup.exe": "file",
+          "movie.mp4": "file"
+        },
+        "Music": {
+          "song1.mp3": "file",
+          "song2.mp3": "file"
+        }
+      },
+      "Recycle Bin": {}
+    };
+  }
+
+  function loadFileSystem() {
+    const saved = localStorage.getItem('cinnaosFileSystem');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return defaultFileSystem();
+      }
+    } else {
+      return defaultFileSystem();
+    }
+  }
+
+  function saveFileSystem() {
+    localStorage.setItem('cinnaosFileSystem', JSON.stringify(fileSystem));
+  }
+
+  let fileSystem = loadFileSystem();
+  let currentPath = ["Home"];
+
+  // DRAGGABLE WINDOW
+  let isDragging = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  titleBar.addEventListener('mousedown', e => {
+    isDragging = true;
+    dragOffsetX = e.clientX - fileExplorerWindow.offsetLeft;
+    dragOffsetY = e.clientY - fileExplorerWindow.offsetTop;
+    titleBar.setAttribute('aria-grabbed', 'true');
+  });
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    titleBar.setAttribute('aria-grabbed', 'false');
+  });
+  window.addEventListener('mousemove', e => {
+    if (isDragging) {
+      let newX = e.clientX - dragOffsetX;
+      let newY = e.clientY - dragOffsetY;
+      const winWidth = window.innerWidth;
+      const winHeight = window.innerHeight;
+      const rect = fileExplorerWindow.getBoundingClientRect();
+      if (newX < 0) newX = 0;
+      if (newY < 0) newY = 0;
+      if (newX + rect.width > winWidth) newX = winWidth - rect.width;
+      if (newY + rect.height > winHeight) newY = winHeight - rect.height;
+      fileExplorerWindow.style.left = newX + 'px';
+      fileExplorerWindow.style.top = newY + 'px';
+    }
+  });
+
+  // Sidebar folders list with Recycle Bin support
+  function initSidebar() {
+    sidebarFolders.innerHTML = '';
+    Object.keys(fileSystem).forEach(folder => {
+      const li = document.createElement('li');
+      li.textContent = folder;
+      li.classList.toggle('active', currentPath[0] === folder);
+      li.setAttribute('role', 'listitem');
+      li.style.fontWeight = folder === "Recycle Bin" ? "bold" : "normal";
+      li.style.color = folder === "Recycle Bin" ? "#a00" : null;
+      li.addEventListener('click', () => {
+        currentPath = [folder];
+        updateView();
+      });
+      sidebarFolders.appendChild(li);
+    });
+  }
+
+  function getFolderContent(path) {
+    let obj = fileSystem;
+    for (const p of path) {
+      obj = obj[p];
+    }
+    return obj;
+  }
+
+  function renderFiles() {
+    const content = getFolderContent(currentPath);
+    fileList.innerHTML = '';
+    for (const name in content) {
+      const type = content[name];
+      const isFolder = typeof type === 'object' && !type.type;
+      const isImageFile = type && type.type === 'image';
+
+      const fileDiv = document.createElement('div');
+      fileDiv.className = 'file-item';
+      fileDiv.title = name;
+      fileDiv.setAttribute('role', 'listitem');
+      fileDiv.setAttribute('tabindex', '0');
+
+      if (isFolder) {
+        const iconSpan = document.createElement('div');
+        iconSpan.className = 'file-icon';
+        iconSpan.textContent = '📁';
+        fileDiv.appendChild(iconSpan);
+      } else if (isImageFile) {
+        const img = document.createElement('img');
+        img.className = 'file-thumbnail';
+        img.src = type.data || '';
+        img.alt = name;
+        fileDiv.appendChild(img);
+      } else {
+        const iconSpan = document.createElement('div');
+        iconSpan.className = 'file-icon';
+        iconSpan.textContent = '📄';
+        fileDiv.appendChild(iconSpan);
+      }
+
+      const nameSpan = document.createElement('div');
+      nameSpan.className = 'file-name';
+      nameSpan.textContent = name;
+      fileDiv.appendChild(nameSpan);
+
+      // Delete button for all except Recycle Bin folder itself
+      if (!(currentPath.length === 1 && currentPath[0] === "Recycle Bin")) {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.title = 'Delete';
+        delBtn.textContent = '✖';
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteItem(name);
+        });
+        fileDiv.appendChild(delBtn);
+      }
+
+      fileDiv.addEventListener('dblclick', () => {
+        if (isFolder) {
+          currentPath.push(name);
+          updateView();
+        } else if (isImageFile) {
+          showImagePreview(type.data, name);
+        } else {
+          alert(`You opened file: ${name}`);
+        }
+      });
+
+      fileDiv.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          fileDiv.dispatchEvent(new Event('dblclick'));
+        }
+      });
+
+      fileList.appendChild(fileDiv);
+    }
+  }
+
+  function showImagePreview(src, name) {
+    const modalBg = document.createElement('div');
+    modalBg.style = `
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      cursor: pointer;
+    `;
+    const modalContent = document.createElement('div');
+    modalContent.style = `
+      background: #c0c0c0; padding: 10px; border: 2px solid #000080; border-radius: 3px;
+      max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;
+      box-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+      cursor: default;
+    `;
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = name;
+    img.style = 'max-width: 100%; max-height: 80vh; border: 1px solid #000080; background: #fff;';
+
+    const caption = document.createElement('div');
+    caption.textContent = name;
+    caption.style = 'color: #000080; margin-top: 6px; font-weight: bold; font-size: 13px;';
+
+    modalContent.appendChild(img);
+    modalContent.appendChild(caption);
+    modalBg.appendChild(modalContent);
+    document.body.appendChild(modalBg);
+
+    modalBg.addEventListener('click', () => {
+      document.body.removeChild(modalBg);
+    });
+  }
+
+  function updateView() {
+    initSidebar();
+    renderFiles();
+    currentPathSpan.textContent = '/' + currentPath.join('/');
+    backBtn.disabled = currentPath.length <= 1;
+    saveFileSystem();
+  }
+
+  backBtn.addEventListener('click', () => {
+    if (currentPath.length > 1) {
+      currentPath.pop();
+      updateView();
+    }
+  });
+
+  uploadBtn.addEventListener('click', () => {
+    if (currentPath[0] === "Recycle Bin") {
+      alert("You cannot upload images to the Recycle Bin.");
+      return;
+    }
+    imageInput.click();
+  });
+
+  imageInput.addEventListener('change', () => {
+    const files = Array.from(imageInput.files);
+    const folder = getFolderContent(currentPath);
+
+    let currentImages = 0;
+    for (const key in folder) {
+      if (folder[key] && folder[key].type === 'image') {
+        currentImages++;
+      }
+    }
+
+    if (currentImages + files.length > maxImages) {
+      alert(`You can upload up to ${maxImages} images total in this folder. You have ${currentImages} already.`);
+      imageInput.value = '';
+      return;
+    }
+
+    let filesProcessed = 0;
+    files.forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        folder[file.name] = { type: 'image', data: e.target.result };
+        filesProcessed++;
+        if (filesProcessed === files.length) {
+          updateView();
+          imageInput.value = '';
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  newFolderBtn.addEventListener('click', () => {
+    if (currentPath[0] === "Recycle Bin") {
+      alert("You cannot create folders inside the Recycle Bin.");
+      return;
+    }
+    const folderName = prompt('Enter new folder name:');
+    if (!folderName) return;
+
+    const folder = getFolderContent(currentPath);
+    if (folder[folderName]) {
+      alert('A file or folder with that name already exists!');
+      return;
+    }
+
+    folder[folderName] = {};
+    updateView();
+  });
+
+  // Move file/folder to Recycle Bin
+  function deleteItem(name) {
+    if (confirm(`Are you sure you want to delete "${name}"? It will be moved to the Recycle Bin.`)) {
+      const folder = getFolderContent(currentPath);
+      const recycleBin = fileSystem["Recycle Bin"];
+      let uniqueName = name;
+      // Ensure unique name in Recycle Bin
+      let i = 1;
+      while (recycleBin[uniqueName]) {
+        uniqueName = `${name} (${i++})`;
+      }
+      recycleBin[uniqueName] = folder[name];
+      delete folder[name];
+      updateView();
+    }
+  }
+
+  updateView();
+</script>
+</body>
+</html>
