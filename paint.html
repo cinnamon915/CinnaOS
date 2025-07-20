@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CinnaPaint</title>
+  <link rel="icon" type="image/png" href="oi.png" />
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      margin: 0;
+      padding: 16px;
+      display: flex;
+    }
+
+    #sidebar {
+      width: 200px;
+      margin-right: 20px;
+    }
+
+    #sidebar label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    #paint-canvas {
+      border: 5px solid #0f0;
+      cursor: crosshair;
+    }
+
+    button {
+      margin-top: 10px;
+      width: 100%;
+      font-family: monospace;
+      background: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 6px;
+    }
+
+    input[type="color"], input[type="range"] {
+      width: 100%;
+      background: #111;
+      border: 1px solid #0f0;
+    }
+
+    .active-button {
+      background-color: #0f0;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <label for="color-picker">🖌️ Brush Color</label>
+    <input type="color" id="color-picker" value="#00ff00" />
+
+    <label for="thickness-slider">🧵 Brush Size</label>
+    <input type="range" id="thickness-slider" min="1" max="30" value="5" />
+
+    <button id="toggle-eraser">🧽 Toggle Eraser</button>
+    <button id="save-paint">💾 Save Drawing</button>
+    <button id="reset-canvas">🗑️ Reset Canvas</button>
+  </div>
+
+  <canvas id="paint-canvas" width="1000" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById('paint-canvas');
+    const ctx = canvas.getContext('2d');
+    const colorPicker = document.getElementById('color-picker');
+    const thicknessSlider = document.getElementById('thickness-slider');
+    const eraserButton = document.getElementById('toggle-eraser');
+    const saveButton = document.getElementById('save-paint');
+
+    let painting = false;
+    let erasing = false;
+
+    canvas.addEventListener('mousedown', () => painting = true);
+    canvas.addEventListener('mouseup', () => painting = false);
+    canvas.addEventListener('mouseleave', () => painting = false);
+    canvas.addEventListener('mousemove', draw);
+
+    function draw(e) {
+      if (!painting) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.arc(x, y, thicknessSlider.value / 2, 0, Math.PI * 2);
+
+      if (erasing) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = colorPicker.value;
+      }
+
+      ctx.fill();
+    }
+
+    saveButton.addEventListener('click', () => {
+      const imageData = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = imageData;
+      link.download = 'cinnapaint.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    document.getElementById('reset-canvas').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    eraserButton.addEventListener('click', () => {
+      erasing = !erasing;
+      eraserButton.classList.toggle('active-button', erasing);
+      eraserButton.textContent = erasing ? '✏️ Drawing Mode' : '🧽 Erase Mode';
+    });
+  </script>
+</body>
+</html>
