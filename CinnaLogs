@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="oi.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CinnaLogs - Funny Log Generator</title>
+  <style>
+    body {
+      background: #121212;
+      color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 1rem;
+    }
+    #logContainer {
+      background: #1e1e1e;
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: inset 0 0 10px #000;
+      margin-bottom: 1rem;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    button {
+      background: #3a86ff;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      align-self: center;
+      user-select: none;
+    }
+    button:hover {
+      background: #265ecf;
+    }
+    .log-info {
+      color: #a8dadc;
+    }
+    .log-warning {
+      color: #f4a261;
+    }
+    .log-error {
+      color: #e76f51;
+    }
+  </style>
+</head>
+<body>
+  <div id="logContainer"></div>
+  <button id="generateLogBtn">Generate Funny Logs</button>
 
+  <script>
+    const logContainer = document.getElementById('logContainer');
+    const generateBtn = document.getElementById('generateLogBtn');
+
+    // Sample funny logs with types
+    const logs = [
+      { type: 'info', text: "[10:23:17] System boot initiated..." },
+      { type: 'info', text: "[10:23:20] PaintApp launched. Memory usage: 13.4MB." },
+      { type: 'warning', text: "[10:23:25] Warning: ChatApp sent 146 emojis in 1 second." },
+      { type: 'error', text: "[10:23:30] Critical: PaintApp crashed after rendering 87 layers of grass. Too many masterpieces detected." },
+      { type: 'warning', text: "[10:24:00] ChatApp attempted to flirt with Notepad. Response: \"I'm not that type of app.\"" },
+      { type: 'info', text: "[10:24:20] Calendar synced. Found 0 real events. Sad." },
+      { type: 'info', text: "[10:25:00] Terminal opened. User typing like they know what they’re doing." },
+      { type: 'error', text: "[10:25:30] Terminal command \"sudo make me a sandwich\" failed. Permission denied." },
+      { type: 'info', text: "[10:26:10] Notepad launched. Ready to hold your secrets." },
+      { type: 'warning', text: "[10:26:45] ChatApp sent 67 stickers in a row. Possible emotional meltdown." },
+      { type: 'info', text: "[10:27:10] PaintApp out of blue pixels. Sky rendering incomplete." },
+      { type: 'error', text: "[10:27:55] Critical: User attempted to open VirusSim.exe. Abort mission!" }
+    ];
+
+    function addLog(log) {
+      const p = document.createElement('p');
+      p.textContent = log.text;
+      p.className = `log-${log.type}`;
+      logContainer.appendChild(p);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    generateBtn.addEventListener('click', () => {
+      // Pick 3–5 random logs per click
+      const count = Math.floor(Math.random() * 3) + 3;
+      for (let i = 0; i < count; i++) {
+        const log = logs[Math.floor(Math.random() * logs.length)];
+        addLog(log);
+      }
+    });
+
+    // Optional: add some initial logs on page load
+    logs.slice(0, 4).forEach(addLog);
+  </script>
+</body>
+</html>
