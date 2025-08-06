@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CinnaLogs - Funny Log Generator</title>
+  <title>CinnaLogs - Fun App Drama Logs</title>
+  <link rel="icon" type="image/png" href="oi.png" />
   <style>
     body {
       background: #121212;
@@ -61,25 +62,23 @@
     const logContainer = document.getElementById('logContainer');
     const generateBtn = document.getElementById('generateLogBtn');
 
-    // Sample funny logs with types
+    // Fun app drama logs
     const logs = [
-  { type: 'info', text: "[10:00:01] System boot sequence started... Buckle up!" },
-  { type: 'info', text: "[10:00:03] Loading kernel modules... Coffee not included." },
-  { type: 'warning', text: "[10:01:15] Warning: User attempted to rename 'ImportantFile.txt' to 'DefinitelyNotImportant.txt'." },
-  { type: 'error', text: "[10:02:20] ERROR: PaintApp overloaded — rendered 99 layers of grass. User creativity off the charts!" },
-  { type: 'info', text: "[10:03:45] ChatApp launched. Preparing witty comebacks..." },
-  { type: 'warning', text: "[10:04:10] ChatApp flirting attempt detected with Notepad. Notepad remains unamused." },
-  { type: 'info', text: "[10:05:30] Calendar synced. Found 3 events. One is 'Procrastinate'." },
-  { type: 'error', text: "[10:06:00] Terminal command 'sudo make me a sandwich' denied. Sandwich AI offline." },
-  { type: 'info', text: "[10:07:25] Notepad opened. Ready to capture brilliance or nonsense." },
-  { type: 'warning', text: "[10:08:55] PaintApp out of blue pixels. Sky looks a bit gloomy." },
-  { type: 'info', text: "[10:09:40] Auto-update check: All systems nominal." },
-  { type: 'error', text: "[10:10:10] Critical: User tried to open VirusSim.exe. Abort, abort!" },
-  { type: 'info', text: "[10:11:50] User unlocked secret log entry. Password: 'pineapple'." },
-  { type: 'warning', text: "[10:12:30] Warning: Excessive emoji use detected in ChatApp. Consider a break." },
-  { type: 'info', text: "[10:13:15] PaintApp: Masterpiece saved. Frame it proudly." }
-];
-
+      { type: 'info', text: "[10:14:22] ChatApp tried to start a group chat with Notepad and Paint. Paint declined: \"Too messy.\"" },
+      { type: 'warning', text: "[10:15:05] Warning: Notepad refused to save because it’s feeling existential today." },
+      { type: 'info', text: "[10:15:43] PaintApp challenged Terminal to a pixel art duel. Terminal replied: \"Bring it on.\"" },
+      { type: 'info', text: "[10:16:12] ChatApp sent a GIF of a cat wearing a hat. Notepad ignored it." },
+      { type: 'info', text: "[10:16:45] Terminal executed 'sudo dance'. The OS is now grooving." },
+      { type: 'error', text: "[10:17:03] Critical: PaintApp ran out of green pixels. Forest is now a desert." },
+      { type: 'warning', text: "[10:17:29] Warning: Calendar is jealous of all the attention PaintApp is getting." },
+      { type: 'info', text: "[10:18:11] ChatApp started typing... then deleted the entire message. Drama alert." },
+      { type: 'info', text: "[10:18:39] Notepad just wrote: \"I’m just a simple text app, okay?\"" },
+      { type: 'info', text: "[10:19:07] Terminal asked PaintApp for help drawing a command prompt. PaintApp laughed." },
+      { type: 'info', text: "[10:19:45] System notification: Coffee break recommended. Developer productivity dropping." },
+      { type: 'warning', text: "[10:20:18] ChatApp sent 100 emojis. System overwhelmed, initiating cooldown." },
+      { type: 'info', text: "[10:20:50] PaintApp saved a masterpiece titled \"Oops, I did it again.\"" },
+      { type: 'warning', text: "[10:21:22] Warning: Terminal tried to run 'rm -rf /' but was blocked by SafetyBot." }
+    ];
 
     function addLog(log) {
       const p = document.createElement('p');
@@ -90,7 +89,7 @@
     }
 
     generateBtn.addEventListener('click', () => {
-      // Pick 3–5 random logs per click
+      // Add 3–5 random logs on each click
       const count = Math.floor(Math.random() * 3) + 3;
       for (let i = 0; i < count; i++) {
         const log = logs[Math.floor(Math.random() * logs.length)];
@@ -98,8 +97,8 @@
       }
     });
 
-    // Optional: add some initial logs on page load
-    logs.slice(0, 4).forEach(addLog);
+    // Add initial logs on page load
+    logs.slice(0, 5).forEach(addLog);
   </script>
 </body>
 </html>
