@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" href="oi.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CinnaLogs - Funny Log Generator</title>
@@ -64,19 +63,23 @@
 
     // Sample funny logs with types
     const logs = [
-      { type: 'info', text: "[10:23:17] System boot initiated..." },
-      { type: 'info', text: "[10:23:20] PaintApp launched. Memory usage: 13.4MB." },
-      { type: 'warning', text: "[10:23:25] Warning: ChatApp sent 146 emojis in 1 second." },
-      { type: 'error', text: "[10:23:30] Critical: PaintApp crashed after rendering 87 layers of grass. Too many masterpieces detected." },
-      { type: 'warning', text: "[10:24:00] ChatApp attempted to flirt with Notepad. Response: \"I'm not that type of app.\"" },
-      { type: 'info', text: "[10:24:20] Calendar synced. Found 0 real events. Sad." },
-      { type: 'info', text: "[10:25:00] Terminal opened. User typing like they know what they’re doing." },
-      { type: 'error', text: "[10:25:30] Terminal command \"sudo make me a sandwich\" failed. Permission denied." },
-      { type: 'info', text: "[10:26:10] Notepad launched. Ready to hold your secrets." },
-      { type: 'warning', text: "[10:26:45] ChatApp sent 67 stickers in a row. Possible emotional meltdown." },
-      { type: 'info', text: "[10:27:10] PaintApp out of blue pixels. Sky rendering incomplete." },
-      { type: 'error', text: "[10:27:55] Critical: User attempted to open VirusSim.exe. Abort mission!" }
-    ];
+  { type: 'info', text: "[10:00:01] System boot sequence started... Buckle up!" },
+  { type: 'info', text: "[10:00:03] Loading kernel modules... Coffee not included." },
+  { type: 'warning', text: "[10:01:15] Warning: User attempted to rename 'ImportantFile.txt' to 'DefinitelyNotImportant.txt'." },
+  { type: 'error', text: "[10:02:20] ERROR: PaintApp overloaded — rendered 99 layers of grass. User creativity off the charts!" },
+  { type: 'info', text: "[10:03:45] ChatApp launched. Preparing witty comebacks..." },
+  { type: 'warning', text: "[10:04:10] ChatApp flirting attempt detected with Notepad. Notepad remains unamused." },
+  { type: 'info', text: "[10:05:30] Calendar synced. Found 3 events. One is 'Procrastinate'." },
+  { type: 'error', text: "[10:06:00] Terminal command 'sudo make me a sandwich' denied. Sandwich AI offline." },
+  { type: 'info', text: "[10:07:25] Notepad opened. Ready to capture brilliance or nonsense." },
+  { type: 'warning', text: "[10:08:55] PaintApp out of blue pixels. Sky looks a bit gloomy." },
+  { type: 'info', text: "[10:09:40] Auto-update check: All systems nominal." },
+  { type: 'error', text: "[10:10:10] Critical: User tried to open VirusSim.exe. Abort, abort!" },
+  { type: 'info', text: "[10:11:50] User unlocked secret log entry. Password: 'pineapple'." },
+  { type: 'warning', text: "[10:12:30] Warning: Excessive emoji use detected in ChatApp. Consider a break." },
+  { type: 'info', text: "[10:13:15] PaintApp: Masterpiece saved. Frame it proudly." }
+];
+
 
     function addLog(log) {
       const p = document.createElement('p');
