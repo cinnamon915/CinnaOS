@@ -21,6 +21,13 @@
       gap: 24px;
     }
 
+    #chat-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
     #chattable {
       width: 360px;
       height: 600px;
@@ -42,8 +49,8 @@
       background: rgba(255, 0, 0, 0.9);
       color: white;
       font-weight: bold;
-      font-size: 20px; /* Same font size as before */
-      padding: 40px 48px; /* Increased padding for bigger shape */
+      font-size: 20px;
+      padding: 40px 48px;
       border-radius: 18px;
       box-shadow: 0 0 16px rgba(255, 0, 0, 1);
       white-space: nowrap;
@@ -64,16 +71,27 @@
       border-radius: 14px;
       text-align: left;
     }
+
+    #header-img {
+      max-width: 360px;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 <body>
 
-  <iframe
-    src="https://iframe.chat/embed?chat=52077655&theme=Wannabe%20XP"
-    id="chattable"
-    title="CinnaChat"
-    allow="clipboard-write"
-  ></iframe>
+  <div id="chat-wrapper">
+    <img id="header-img" src="https://files.catbox.moe/w44s1k.png" alt="CinnaChat Header" />
+    <iframe
+      src="https://iframe.chat/embed?chat=52077655&theme=Wannabe%20XP"
+      id="chattable"
+      title="CinnaChat"
+      allow="clipboard-write"
+    ></iframe>
+  </div>
 
   <div id="error-container">
     <div id="error-code" class="error-box">
@@ -81,9 +99,9 @@
     </div>
     <div class="error-box codes-list">
       <strong>Error Codes:</strong><br />
+      000 - CinnaChat is fine<br />
       102 - Banned from chat<br />
       246 - iframe.chat is down<br />
-      000 - CinnaChat is fine<br />
       <!-- Add more codes here -->
     </div>
   </div>
