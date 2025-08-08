@@ -42,25 +42,21 @@
       gap: 24px;
       min-width: 280px;
       user-select: none;
+      align-self: flex-start;
+      margin-top: 80px;
     }
 
-    /* Bigger shape, same font size */
-    .error-box {
-      background: rgba(255, 0, 0, 0.9);
-      color: white;
+    /* 🔹 MAIN ERROR WORD — Changed color to red */
+    #error-code {
       font-weight: bold;
       font-size: 20px;
-      padding: 40px 48px;
-      border-radius: 18px;
-      box-shadow: 0 0 16px rgba(255, 0, 0, 1);
-      white-space: nowrap;
-      max-width: 320px;
+      color: #FF0000; /* red */
       text-align: center;
-      line-height: 1.2;
     }
 
-    .error-box.codes-list {
-      background: rgba(0, 0, 0, 0.7);
+    /* Error codes list box */
+    .codes-list {
+      background: rgba(0, 0, 0, 0.103);
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
       font-weight: normal;
       font-size: 16px;
@@ -94,10 +90,9 @@
   </div>
 
   <div id="error-container">
-    <div id="error-code" class="error-box">
-      Error 246: iframe.chat not working
-    </div>
-    <div class="error-box codes-list">
+    <div id="error-code">iframe.chat is down</div>
+
+    <div class="codes-list">
       <strong>Error Codes:</strong><br />
       102 - Banned from chat<br />
       246 - iframe.chat is down<br />
