@@ -752,6 +752,34 @@ restartBtn.addEventListener('click', () => {
 <body>
 <div id="bsod"></div>
 
+<!-- Login Screen -->
+<div id="login" style="display:none; background:#111; color:white; width:100%; height:100%; position:absolute; top:0; left:0; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:'Segoe UI',sans-serif;">
+  <p><img src="https://files.catbox.moe/w44s1k.png" /></p>
+  <input type="text" id="username" placeholder="Username" style="margin:5px; padding:10px; border:none; border-radius:5px;"/>
+  <input type="password" id="password" placeholder="Password" style="margin:5px; padding:10px; border:none; border-radius:5px;"/>
+  <button onclick="login()" style="margin-top:10px; padding:10px 20px; border:none; border-radius:5px; background:#2e86de; color:white; cursor:pointer;">Login</button>
+</div>
+<script>
+  // Call this when BIOS is done
+  function showLogin() {
+    document.getElementById("login").style.display = "flex";
+  }
+
+  // Accept any password
+  function login() {
+    let user = document.getElementById("username").value;
+
+    if (user.trim() !== "") {
+      document.getElementById("login").style.display = "none";
+      // Load your CinnaOS desktop here
+      alert("Welcome " + user + "! Now booting CinnaOS...");
+    } else {
+      alert("Please enter a username.");
+    }
+  }
+</script>
+
+
 <script>
   let clickCount = 0;
   const bsod = document.getElementById('bsod');
