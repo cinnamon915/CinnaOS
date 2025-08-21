@@ -767,16 +767,15 @@ restartBtn.addEventListener('click', () => {
 
   // Accept any password
   function login() {
-    let user = document.getElementById("username").value;
+  let user = document.getElementById("username").value;
 
-    if (user.trim() !== "") {
-      document.getElementById("login").style.display = "none";
-      // Load your CinnaOS desktop here
-      alert("Welcome " + user + "! Now booting CinnaOS...");
-    } else {
-      alert("Please enter a username.");
-    }
+  if (user.trim() !== "") {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("desktop").style.display = "block"; 
+  } else {
+    alert("Please enter a username.");
   }
+}
 </script>
 
 
