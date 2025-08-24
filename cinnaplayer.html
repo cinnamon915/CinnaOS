@@ -1,0 +1,24 @@
+<div id="mediaPlayer" class="window">
+  <div class="title-bar">🎬 CinnaOS Media Player</div>
+  <div class="content">
+    <video id="player" controls>
+      <source src="sample.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <input type="file" id="fileInput" accept="audio/*,video/*">
+  </div>
+</div>
+
+<script>
+  const fileInput = document.getElementById("fileInput");
+  const player = document.getElementById("player");
+
+  fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      player.src = url;
+      player.play();
+    }
+  });
+</script>
