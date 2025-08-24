@@ -1,26 +1,25 @@
 <div id="mediaPlayer" class="window" style="width:720px;">
-  <div class="title-bar">🎬 CinnaOS Media Player</div>
+  <div class="title-bar">CinnaOS Media Player</div>
   <div class="content">
-    <!-- File Player -->
-    <video id="player" width="720" height="405" controls>
+    <!-- Video/Audio Player -->
+    <video id="player" width="720" height="405" controls style="display:none;">
       Your browser does not support video playback.
     </video>
-    <br>
-
-    <!-- File Input -->
-    <input type="file" id="fileInput" accept="audio/*,video/*">
-    <button id="saveBtn">Save File</button>
-    <br><br>
-
-    <!-- URL Input -->
-    <input type="text" id="urlInput" placeholder="Enter YouTube URL" style="width:60%;">
-    <button id="loadURL">Load Video</button>
-    <br><br>
 
     <!-- YouTube Embed -->
     <div id="youtubeContainer" style="width:720px; height:405px; display:none;">
       <iframe id="youtubeFrame" width="720" height="405" frameborder="0" allowfullscreen></iframe>
     </div>
+    <br>
+
+    <!-- File Input -->
+    <input type="file" id="fileInput" accept="audio/*,video/*">
+    <button id="saveBtn" disabled>Save Video Link</button>
+    <br><br>
+
+    <!-- URL Input -->
+    <input type="text" id="urlInput" placeholder="Enter YouTube URL" style="width:60%;">
+    <button id="loadURL">Load Video</button>
   </div>
 </div>
 
@@ -33,36 +32,27 @@ const loadURL = document.getElementById("loadURL");
 const youtubeContainer = document.getElementById("youtubeContainer");
 const youtubeFrame = document.getElementById("youtubeFrame");
 
-let currentFile;
+let currentLink = null;
 
-// File input load
+// --- Load local files ---
 fileInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
   if (file) {
     const url = URL.createObjectURL(file);
-    currentFile = file;
     player.src = url;
     player.style.display = "block";
     youtubeContainer.style.display = "none";
     player.play();
+    currentLink = null;       // No save for local files
+    saveBtn.disabled = true;  // Disable save button
   }
 });
 
-// Save current file
-saveBtn.addEventListener("click", () => {
-  if (!currentFile) return alert("No file loaded!");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(currentFile);
-  a.download = currentFile.name;
-  a.click();
-});
-
-// Load YouTube URL
+// --- Load YouTube links ---
 loadURL.addEventListener("click", () => {
-  const url = urlInput.value;
+  const url = urlInput.value.trim();
   if (!url) return alert("Enter a YouTube URL!");
   
-  // Extract video ID
   const match = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
   if (!match) return alert("Invalid YouTube URL!");
   
@@ -70,5 +60,16 @@ loadURL.addEventListener("click", () => {
   youtubeFrame.src = `https://www.youtube.com/embed/${videoID}`;
   youtubeContainer.style.display = "block";
   player.style.display = "none";
+  currentLink = `https://www.youtube.com/watch?v=${videoID}`;
+  saveBtn.disabled = false; // Enable save button for links
+});
+
+// --- Save video link ---
+saveBtn.addEventListener("click", () => {
+  if (!currentLink) return alert("No video link to save!");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([currentLink], {type: "text/plain"}));
+  a.download = "CinnaOS_video_link.txt";
+  a.click();
 });
 </script>
