@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Camera App Test</title>
+  <title>CinnaOS Camera</title>
   <style>
     body {
       margin: 0;
@@ -30,28 +30,70 @@
       color: white;
       font-size: 14px;
       cursor: pointer;
+      margin: 2px;
     }
     button:hover { background: #357abd; }
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      max-width: 500px;
+      justify-content: center;
+    }
+    .gallery-item {
+      position: relative;
+    }
+    .gallery-item img, .gallery-item video {
+      width: 120px;
+      border: 2px solid #333;
+      border-radius: 6px;
+    }
+    .delete-btn, .download-btn {
+      position: absolute;
+      top: -6px;
+      background: red;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      color: white;
+      font-size: 12px;
+    }
+    .download-btn {
+      right: 24px;
+      background: green;
+    }
+    .delete-btn {
+      right: -6px;
+    }
   </style>
 </head>
 <body>
-  <h2>📷 Camera App</h2>
+  <h2>CinnaOS Camera</h2>
   <video id="cameraVideo" autoplay playsinline></video>
   <canvas id="cameraCanvas" width="480" height="270" style="display:none;"></canvas>
+
   <div>
     <button onclick="startCamera()">Enable Camera</button>
-    <button onclick="takeSnapshot()">📸 Snapshot</button>
-    <button onclick="saveSnapshot()">💾 Save</button>
-    <button onclick="toggleMirror()">🔄 Mirror</button>
+    <button onclick="takeSnapshot()"> Photo</button>
+    <button onclick="toggleRecording()" id="recordBtn"> Start Video</button>
+    <button onclick="toggleMirror()"> Mirror</button>
   </div>
+
+  <div class="gallery" id="gallery"></div>
 
 <script>
 let camStream = null;
 let mirrored = true;
+let mediaRecorder = null;
+let recordedChunks = [];
 
+// Start Camera
 async function startCamera() {
   try {
-    camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     const video = document.getElementById("cameraVideo");
     video.srcObject = camStream;
     video.style.transform = "scaleX(-1)"; // start mirrored
@@ -60,12 +102,14 @@ async function startCamera() {
   }
 }
 
+// Take Photo
 function takeSnapshot() {
+  if (!camStream) return alert("Enable camera first!");
   const video = document.getElementById("cameraVideo");
   const canvas = document.getElementById("cameraCanvas");
   const ctx = canvas.getContext("2d");
   canvas.style.display = "block";
-  
+
   if (mirrored) {
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
@@ -74,20 +118,71 @@ function takeSnapshot() {
   } else {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   }
+
+  const img = document.createElement("img");
+  img.src = canvas.toDataURL("image/png");
+  addToGallery(img, "photo", img.src);
 }
 
-function saveSnapshot() {
-  const canvas = document.getElementById("cameraCanvas");
-  if (canvas.style.display === "none") {
-    alert("Take a snapshot first!");
-    return;
+// Toggle Video Recording
+function toggleRecording() {
+  if (!camStream) return alert("Enable camera first!");
+  const btn = document.getElementById("recordBtn");
+
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+    btn.textContent = " Start Video";
+  } else {
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(camStream, { mimeType: "video/webm" });
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = saveVideo;
+    mediaRecorder.start();
+    btn.textContent = " Stop Video";
   }
-  const link = document.createElement("a");
-  link.download = `snapshot_${Date.now()}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
 }
 
+// Save recorded video
+function saveVideo() {
+  const blob = new Blob(recordedChunks, { type: "video/webm" });
+  const url = URL.createObjectURL(blob);
+
+  const vid = document.createElement("video");
+  vid.src = url;
+  vid.controls = true;
+
+  addToGallery(vid, "video", url);
+}
+
+// Add item to gallery with delete + download
+function addToGallery(element, type, url) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "gallery-item";
+
+  // delete button
+  const del = document.createElement("button");
+  del.textContent = "";
+  del.className = "delete-btn";
+  del.onclick = () => wrapper.remove();
+
+  // download button
+  const dl = document.createElement("button");
+  dl.textContent = "";
+  dl.className = "download-btn";
+  dl.onclick = () => {
+    const link = document.createElement("a");
+    link.download = (type === "photo" ? "photo" : "video") + "_" + Date.now() + (type === "photo" ? ".png" : ".webm");
+    link.href = url;
+    link.click();
+  };
+
+  wrapper.appendChild(element);
+  wrapper.appendChild(del);
+  wrapper.appendChild(dl);
+  document.getElementById("gallery").appendChild(wrapper);
+}
+
+// Toggle Mirror
 function toggleMirror() {
   mirrored = !mirrored;
   const video = document.getElementById("cameraVideo");
