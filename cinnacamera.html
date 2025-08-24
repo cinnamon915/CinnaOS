@@ -71,15 +71,15 @@
   </style>
 </head>
 <body>
-  <h2>CinnaOS Camera</h2>
+  <h2>📷 CinnaOS Camera</h2>
   <video id="cameraVideo" autoplay playsinline></video>
   <canvas id="cameraCanvas" width="480" height="270" style="display:none;"></canvas>
 
   <div>
     <button onclick="startCamera()">Enable Camera</button>
-    <button onclick="takeSnapshot()"> Photo</button>
-    <button onclick="toggleRecording()" id="recordBtn"> Start Video</button>
-    <button onclick="toggleMirror()"> Mirror</button>
+    <button onclick="takeSnapshot()">📸 Photo</button>
+    <button onclick="toggleRecording()" id="recordBtn">🎥 Start Video</button>
+    <button onclick="toggleMirror()">🔄 Mirror</button>
   </div>
 
   <div class="gallery" id="gallery"></div>
@@ -131,14 +131,14 @@ function toggleRecording() {
 
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();
-    btn.textContent = " Start Video";
+    btn.textContent = "🎥 Start Video";
   } else {
     recordedChunks = [];
     mediaRecorder = new MediaRecorder(camStream, { mimeType: "video/webm" });
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onstop = saveVideo;
     mediaRecorder.start();
-    btn.textContent = " Stop Video";
+    btn.textContent = "⏹ Stop Video";
   }
 }
 
@@ -161,13 +161,13 @@ function addToGallery(element, type, url) {
 
   // delete button
   const del = document.createElement("button");
-  del.textContent = "";
+  del.textContent = "✖";
   del.className = "delete-btn";
   del.onclick = () => wrapper.remove();
 
   // download button
   const dl = document.createElement("button");
-  dl.textContent = "";
+  dl.textContent = "⬇";
   dl.className = "download-btn";
   dl.onclick = () => {
     const link = document.createElement("a");
