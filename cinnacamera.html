@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Camera Access Demo</title>
+  <style>
+    body { 
+      margin: 0; 
+      background: #0d0d0d; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      color: #fff; 
+      font-family: sans-serif;
+    }
+    video {
+      width: 90%;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,.6);
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #4a90e2;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>📷 Camera Access</h1>
+  <video id="video" autoplay playsinline></video>
+  <button id="startBtn">Enable Camera</button>
+
+<script>
+const video = document.getElementById("video");
+const btn = document.getElementById("startBtn");
+
+btn.addEventListener("click", async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    video.srcObject = stream;
+    btn.disabled = true;
+    btn.textContent = "Camera Active";
+  } catch (err) {
+    alert("Camera access denied or unavailable: " + err);
+  }
+});
+</script>
+</body>
+</html>
