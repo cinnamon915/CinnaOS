@@ -1,62 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Camera Access Demo</title>
+  <meta charset="UTF-8">
+  <title>Camera App Test</title>
   <style>
-    body { 
-      margin: 0; 
-      background: #0d0d0d; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      height: 100vh; 
-      color: #fff; 
+    body {
+      margin: 0;
+      background: #1a1a1a;
+      color: #fff;
       font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 10px;
     }
-    video {
-      width: 90%;
-      max-width: 500px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,.6);
+    video, canvas {
+      max-width: 480px;
+      border-radius: 8px;
+      border: 2px solid #444;
+      background: #000;
     }
     button {
-      margin-top: 12px;
-      padding: 10px 16px;
+      padding: 8px 14px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       background: #4a90e2;
       color: white;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
     }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    button:hover { background: #357abd; }
   </style>
 </head>
 <body>
-  <h1>📷 Camera Access</h1>
-  <video id="video" autoplay playsinline></video>
-  <button id="startBtn">Enable Camera</button>
+  <h2>📷 Camera App</h2>
+  <video id="cameraVideo" autoplay playsinline></video>
+  <canvas id="cameraCanvas" width="480" height="270" style="display:none;"></canvas>
+  <div>
+    <button onclick="startCamera()">Enable Camera</button>
+    <button onclick="takeSnapshot()">📸 Snapshot</button>
+    <button onclick="saveSnapshot()">💾 Save</button>
+    <button onclick="toggleMirror()">🔄 Mirror</button>
+  </div>
 
 <script>
-const video = document.getElementById("video");
-const btn = document.getElementById("startBtn");
+let camStream = null;
+let mirrored = true;
 
-btn.addEventListener("click", async () => {
+async function startCamera() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-    video.srcObject = stream;
-    btn.disabled = true;
-    btn.textContent = "Camera Active";
+    camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    const video = document.getElementById("cameraVideo");
+    video.srcObject = camStream;
+    video.style.transform = "scaleX(-1)"; // start mirrored
   } catch (err) {
-    alert("Camera access denied or unavailable: " + err);
+    alert("Camera access failed: " + err);
   }
-});
+}
+
+function takeSnapshot() {
+  const video = document.getElementById("cameraVideo");
+  const canvas = document.getElementById("cameraCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.style.display = "block";
+  
+  if (mirrored) {
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.setTransform(1,0,0,1,0,0);
+  } else {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  }
+}
+
+function saveSnapshot() {
+  const canvas = document.getElementById("cameraCanvas");
+  if (canvas.style.display === "none") {
+    alert("Take a snapshot first!");
+    return;
+  }
+  const link = document.createElement("a");
+  link.download = `snapshot_${Date.now()}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+function toggleMirror() {
+  mirrored = !mirrored;
+  const video = document.getElementById("cameraVideo");
+  video.style.transform = mirrored ? "scaleX(-1)" : "scaleX(1)";
+}
 </script>
 </body>
 </html>
