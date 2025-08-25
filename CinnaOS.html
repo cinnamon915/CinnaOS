@@ -167,11 +167,8 @@
 <button onclick="window.location.href='https://cinnaos.neocities.org/cinnaplayer'">Open Cinna media player</button>
 
 
-
-             
-  </div>
-
-  <!DOCTYPE html>
+</div>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
@@ -196,8 +193,7 @@
       margin-right: 20px; /* moved 20px from right */
     }
   </style>
-</head>
-<body>
+
   <div id="taskbar">
     <span>CinnaOS - Browser OS - version 3.0</span>
     <span id="taskbar-clock"></span>
@@ -212,9 +208,6 @@
     updateTaskbarClock();
     setInterval(updateTaskbarClock, 1000);
   </script>
-</body>
-</html>
-
 
   <script>
     function applyTheme(name) {
@@ -596,13 +589,9 @@ restartBtn.addEventListener('click', () => {
   document.body.style.backgroundPosition = "center center";
   document.body.style.backgroundAttachment = "fixed";
 </script>
-<!DOCTYPE html>
-<html>
-<head>
-  <title>CinnaOS</title>
+
 </head>
 <body>
-  
   <!-- BIOS Boot Screen -->
 <div id="bios-screen" style="
   background: black;
@@ -663,7 +652,6 @@ restartBtn.addEventListener('click', () => {
     });
   </script>
   
-
 <script>
   const biosLines = [
     "American CinnaTrends BIOS v3.00",
@@ -726,11 +714,11 @@ restartBtn.addEventListener('click', () => {
   };
 
   window.onunload = () => {
-    // 🧹 Clean up (add more cleanup if needed later)
+    //  Clean up (add more cleanup if needed later)
     console.log("CinnaOS is unloading...");
   };
 </script>
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -752,7 +740,7 @@ restartBtn.addEventListener('click', () => {
   }
 </style>
 </head>
-<!DOCTYPE html>
+
 <html>
 <head>
   <meta charset="UTF-8">
@@ -766,20 +754,21 @@ restartBtn.addEventListener('click', () => {
     }
 
     /* Fullscreen login background */
-    #login {
-      display: none;
-      background: url("https://files.catbox.moe/0co7u6.png") center/cover no-repeat; 
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0; left: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.6);
-    }
+
+#login {
+  background: black; /* solid black background */
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+}
 
     /* Logo bigger */
     #login img {
@@ -850,8 +839,7 @@ restartBtn.addEventListener('click', () => {
       top: 0; left: 0;
     }
   </style>
-</head>
-<body>
+
   <!-- Login Screen -->
   <div id="login">
     <img src="https://files.catbox.moe/w44s1k.png" alt="User Icon" />
@@ -899,10 +887,6 @@ restartBtn.addEventListener('click', () => {
     updateDateTime();
     setInterval(updateDateTime, 1000);
   </script>
-</body>
-</html>
-
-
 
 <script>
   let clickCount = 0;
