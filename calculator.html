@@ -30,6 +30,7 @@
       text-align: right;
       margin-bottom: 10px;
       overflow: hidden;
+      box-shadow: inset 0 0 8px #0f0;
     }
     .buttons {
       display: grid;
@@ -50,11 +51,12 @@
       background: #666;
     }
     button.operator {
-      background: #ff9500;
+      background: #00bcd4;
+      box-shadow: 0 0 10px #00bcd4;
       color: #fff;
     }
     button.operator:hover {
-      background: #e08a00;
+      background: #0097a7;
     }
     button.clear {
       background: #f44336;
@@ -107,12 +109,29 @@
 
     function calculate() {
       try {
-        const result = eval(display.textContent.replace("÷", "/").replace("×", "*"));
+        const expression = display.textContent
+          .replace(/÷/g, "/")
+          .replace(/×/g, "*");
+        const result = Function("return " + expression)();
         display.textContent = result;
       } catch {
         display.textContent = "Error";
       }
     }
+
+    // --- Keyboard Support ---
+    document.addEventListener("keydown", (e) => {
+      if (!isNaN(e.key) || ["+", "-", "*", "/", ".", "%"].includes(e.key)) {
+        append(e.key);
+      } else if (e.key === "Enter" || e.key === "=") {
+        e.preventDefault();
+        calculate();
+      } else if (e.key === "Backspace") {
+        display.textContent = display.textContent.slice(0, -1) || "0";
+      } else if (e.key.toLowerCase() === "c") {
+        clearDisplay();
+      }
+    });
   </script>
 </body>
 </html>
