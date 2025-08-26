@@ -1,35 +1,130 @@
 <link rel="icon" type="image/png" href="oi.png">
-<div id="mediaPlayer" class="window" style="width:720px;">
-  <div class="title-bar">CinnaOS Media Player</div>
+<div id="mediaPlayer" class="window">
+  <div class="title-bar">🎬 CinnaOS Media Player</div>
   <div class="content">
     <!-- Video/Audio Player -->
-    <video id="player" width="720" height="405" controls style="display:none;">
-      Your browser does not support video playback :(.
-    </video>
+    <video id="player" controls style="display:none;"></video>
 
     <!-- YouTube Embed -->
-    <div id="youtubeContainer" style="width:720px; height:405px; display:none;">
+    <div id="youtubeContainer" style="display:none;">
       <div id="youtubeFrame"></div>
     </div>
-    <br>
 
-    <!-- File Input -->
-    <input type="file" id="fileInput" accept="audio/*,video/*" multiple>
-    <button id="saveBtn" disabled>Save Video Link</button>
-    <br><br>
+    <!-- Controls -->
+    <div class="controls">
+      <input type="file" id="fileInput" accept="audio/*,video/*" multiple>
+      <button id="saveBtn" disabled>💾 Save Video Link</button>
+    </div>
 
-    <!-- URL Input -->
-    <input type="text" id="urlInput" placeholder="Enter YouTube URL" style="width:60%;">
-    <button id="loadURL">Add to Playlist</button>
-    <br><br>
+    <div class="controls">
+      <input type="text" id="urlInput" placeholder="Enter YouTube URL">
+      <button id="loadURL">➕ Add to Playlist</button>
+    </div>
 
     <!-- Playlist -->
-    <div id="playlist" style="max-height:150px; overflow-y:auto; border:1px solid #ccc; padding:5px; background:#f9f9f9;">
-      <b>Playlist:</b>
-      <ul id="playlistItems" style="list-style:none; padding-left:0;"></ul>
+    <div id="playlist">
+      <b>Playlist</b>
+      <ul id="playlistItems"></ul>
     </div>
   </div>
 </div>
+
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #1e1e1e;
+  color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.window {
+  width: 720px;
+  background: rgba(30,30,30,0.9);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+
+.title-bar {
+  background: linear-gradient(90deg, #00bcd4, #00838f);
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 18px;
+}
+
+.content {
+  padding: 15px;
+}
+
+video, #youtubeContainer {
+  width: 100%;
+  height: 405px;
+  border-radius: 8px;
+  background: black;
+  margin-bottom: 15px;
+}
+
+.controls {
+  margin: 8px 0;
+}
+
+input[type="text"] {
+  width: 60%;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+}
+
+button {
+  padding: 6px 12px;
+  margin-left: 6px;
+  background: #00bcd4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+button:hover {
+  background: #00838f;
+}
+button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+#playlist {
+  margin-top: 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+#playlist ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#playlist li {
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+#playlist li:hover {
+  background: rgba(255,255,255,0.1);
+}
+#playlist li.active {
+  background: #00bcd4;
+  color: white;
+}
+</style>
 
 <script>
 const fileInput = document.getElementById("fileInput");
@@ -67,7 +162,7 @@ function playItem(index) {
 
   // highlight selected
   [...playlistItems.children].forEach((li, i) => {
-    li.style.background = i === currentIndex ? "#ddd" : "transparent";
+    li.classList.toggle("active", i === currentIndex);
   });
 }
 
@@ -87,7 +182,6 @@ fileInput.addEventListener("change", (event) => {
 
     const li = document.createElement("li");
     li.textContent = file.name;
-    li.style.cursor = "pointer";
     li.onclick = () => playItem(playlist.indexOf(item));
     playlistItems.appendChild(li);
   }
@@ -108,7 +202,6 @@ loadURL.addEventListener("click", () => {
 
   const li = document.createElement("li");
   li.textContent = item.name;
-  li.style.cursor = "pointer";
   li.onclick = () => playItem(playlist.indexOf(item));
   playlistItems.appendChild(li);
 
