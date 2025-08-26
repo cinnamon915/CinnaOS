@@ -14,13 +14,20 @@
     <br>
 
     <!-- File Input -->
-    <input type="file" id="fileInput" accept="audio/*,video/*">
+    <input type="file" id="fileInput" accept="audio/*,video/*" multiple>
     <button id="saveBtn" disabled>Save Video Link</button>
     <br><br>
 
     <!-- URL Input -->
     <input type="text" id="urlInput" placeholder="Enter YouTube URL" style="width:60%;">
-    <button id="loadURL">Load Video</button>
+    <button id="loadURL">Add to Playlist</button>
+    <br><br>
+
+    <!-- Playlist -->
+    <div id="playlist" style="max-height:150px; overflow-y:auto; border:1px solid #ccc; padding:5px; background:#f9f9f9;">
+      <b>Playlist:</b>
+      <ul id="playlistItems" style="list-style:none; padding-left:0;"></ul>
+    </div>
   </div>
 </div>
 
@@ -32,24 +39,53 @@ const urlInput = document.getElementById("urlInput");
 const loadURL = document.getElementById("loadURL");
 const youtubeContainer = document.getElementById("youtubeContainer");
 const youtubeFrame = document.getElementById("youtubeFrame");
+const playlistItems = document.getElementById("playlistItems");
 
-let currentLink = null;
+let playlist = []; // array of {type: "file"/"link", name, src}
+let currentIndex = -1;
 
-// --- Load local files ---
-fileInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    player.src = url;
+// --- Play selected item ---
+function playItem(index) {
+  if (index < 0 || index >= playlist.length) return;
+  currentIndex = index;
+  const item = playlist[index];
+
+  if (item.type === "file") {
+    player.src = item.src;
     player.style.display = "block";
     youtubeContainer.style.display = "none";
     player.play();
-    currentLink = null;       // No save for local files
-    saveBtn.disabled = true;  // Disable save button
+    saveBtn.disabled = true;
+  } else if (item.type === "link") {
+    youtubeFrame.src = `https://www.youtube.com/embed/${item.id}`;
+    youtubeContainer.style.display = "block";
+    player.style.display = "none";
+    saveBtn.disabled = false;
   }
+
+  // highlight selected
+  [...playlistItems.children].forEach((li, i) => {
+    li.style.background = i === currentIndex ? "#ddd" : "transparent";
+  });
+}
+
+// --- Add file(s) to playlist ---
+fileInput.addEventListener("change", (event) => {
+  for (const file of event.target.files) {
+    const url = URL.createObjectURL(file);
+    const item = {type:"file", name:file.name, src:url};
+    playlist.push(item);
+
+    const li = document.createElement("li");
+    li.textContent = file.name;
+    li.style.cursor = "pointer";
+    li.onclick = () => playItem(playlist.indexOf(item));
+    playlistItems.appendChild(li);
+  }
+  if (currentIndex === -1 && playlist.length > 0) playItem(0);
 });
 
-// --- Load YouTube links ---
+// --- Add YouTube link to playlist ---
 loadURL.addEventListener("click", () => {
   const url = urlInput.value.trim();
   if (!url) return alert("Enter a YouTube URL!");
@@ -58,19 +94,28 @@ loadURL.addEventListener("click", () => {
   if (!match) return alert("Invalid YouTube URL!");
   
   const videoID = match[1];
-  youtubeFrame.src = `https://www.youtube.com/embed/${videoID}`;
-  youtubeContainer.style.display = "block";
-  player.style.display = "none";
-  currentLink = `https://www.youtube.com/watch?v=${videoID}`;
-  saveBtn.disabled = false; // Enable save button for links
+  const item = {type:"link", name:"YouTube Video ("+videoID+")", id:videoID, src:`https://www.youtube.com/watch?v=${videoID}`};
+  playlist.push(item);
+
+  const li = document.createElement("li");
+  li.textContent = item.name;
+  li.style.cursor = "pointer";
+  li.onclick = () => playItem(playlist.indexOf(item));
+  playlistItems.appendChild(li);
+
+  if (currentIndex === -1) playItem(0);
+  urlInput.value = "";
 });
 
-// --- Save video link ---
+// --- Save current link ---
 saveBtn.addEventListener("click", () => {
-  if (!currentLink) return alert("No video link to save!");
+  if (currentIndex < 0) return alert("Nothing playing!");
+  const item = playlist[currentIndex];
+  if (item.type !== "link") return alert("Only links can be saved!");
+
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([currentLink], {type: "text/plain"}));
-  a.download = "CinnaOS_video_link.txt";
+  a.href = URL.createObjectURL(new Blob([item.src], {type:"text/plain"}));
+  a.download = item.name.replace(/\s+/g,"_") + ".txt";
   a.click();
 });
 </script>
