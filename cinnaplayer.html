@@ -9,7 +9,7 @@
 
     <!-- YouTube Embed -->
     <div id="youtubeContainer" style="width:720px; height:405px; display:none;">
-      <iframe id="youtubeFrame" width="720" height="405" frameborder="0" allowfullscreen></iframe>
+      <div id="youtubeFrame"></div>
     </div>
     <br>
 
@@ -38,11 +38,11 @@ const saveBtn = document.getElementById("saveBtn");
 const urlInput = document.getElementById("urlInput");
 const loadURL = document.getElementById("loadURL");
 const youtubeContainer = document.getElementById("youtubeContainer");
-const youtubeFrame = document.getElementById("youtubeFrame");
 const playlistItems = document.getElementById("playlistItems");
 
-let playlist = []; // array of {type: "file"/"link", name, src}
+let playlist = []; // array of {type: "file"/"link", name, src, id?}
 let currentIndex = -1;
+let ytPlayer = null;
 
 // --- Play selected item ---
 function playItem(index) {
@@ -57,16 +57,25 @@ function playItem(index) {
     player.play();
     saveBtn.disabled = true;
   } else if (item.type === "link") {
-    youtubeFrame.src = `https://www.youtube.com/embed/${item.id}`;
     youtubeContainer.style.display = "block";
     player.style.display = "none";
     saveBtn.disabled = false;
+    if (ytPlayer) {
+      ytPlayer.loadVideoById(item.id);
+    }
   }
 
   // highlight selected
   [...playlistItems.children].forEach((li, i) => {
     li.style.background = i === currentIndex ? "#ddd" : "transparent";
   });
+}
+
+// --- Next item ---
+function playNext() {
+  if (currentIndex + 1 < playlist.length) {
+    playItem(currentIndex + 1);
+  }
 }
 
 // --- Add file(s) to playlist ---
@@ -118,4 +127,27 @@ saveBtn.addEventListener("click", () => {
   a.download = item.name.replace(/\s+/g,"_") + ".txt";
   a.click();
 });
+
+// --- Auto-next for local files ---
+player.addEventListener("ended", playNext);
+
+// --- YouTube IFrame API ---
+function onYouTubeIframeAPIReady() {
+  ytPlayer = new YT.Player('youtubeFrame', {
+    width: '720',
+    height: '405',
+    events: {
+      'onStateChange': (event) => {
+        if (event.data === YT.PlayerState.ENDED) {
+          playNext();
+        }
+      }
+    }
+  });
+}
+
+// load YT API script
+let tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.body.appendChild(tag);
 </script>
