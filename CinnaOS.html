@@ -211,11 +211,61 @@
     }
   </style>
 
-  <div id="taskbar">
-    <span>CinnaOS - Browser OS - version 3.0</span>
-<div id="coin-display">💰 CinnaCoins: 0</div>
-    <span id="taskbar-clock"></span>
+<!-- ======= Taskbar ======= -->
+<div id="taskbar">
+  <span>CinnaOS - Browser OS - version 3.0</span>
+  <button onclick="openCinnaStore()">CinnaStore</button>
+  <div id="coin-display">💰 CinnaCoins: 0</div>
+  <span id="taskbar-clock"></span>
+</div>
+
+<!-- ======= App Windows ======= -->
+<div id="cinnastore" class="app-window" style="display:none; width:300px; height:200px; border:1px solid #333; position:absolute; top:100px; left:100px; background:#fff;">
+  <div class="title-bar" style="background:#222; color:#fff; padding:5px; display:flex; justify-content:space-between; align-items:center;">
+    <span>🛒 CinnaStore</span>
+    <button onclick="closeApp('cinnastore')" style="background:#f00;color:#fff;border:none;">❌</button>
   </div>
+  <div class="app-content" style="padding:10px; text-align:center;">
+    <p>Welcome to the CinnaStore!</p>
+    <p style="color:gray;">Coming Soon...</p>
+  </div>
+</div>
+
+<!-- ======= Script Block (Place at the bottom of <body>) ======= -->
+<script>
+  // ====== CinnaCoins System ======
+  let cinnaCoins = parseInt(localStorage.getItem("cinnaCoins")) || 0;
+
+  function updateCoinDisplay() {
+    const coinEl = document.getElementById("coin-display");
+    if (coinEl) coinEl.innerText = "💰 CinnaCoins: " + cinnaCoins;
+    localStorage.setItem("cinnaCoins", cinnaCoins);
+  }
+
+  function addCoins(amount) {
+    cinnaCoins += amount;
+    updateCoinDisplay();
+  }
+
+  // ====== App Open/Close Functions ======
+  function openCinnaStore() {
+    const store = document.getElementById('cinnastore');
+    if (store) store.style.display = 'block';
+    addCoins(10); // reward coins for opening
+  }
+
+  function closeApp(appId) {
+    const app = document.getElementById(appId);
+    if (app) app.style.display = 'none';
+  }
+
+  // ====== Daily login bonus ======
+  document.addEventListener("DOMContentLoaded", () => {
+    addCoins(5);
+    updateCoinDisplay();
+  });
+</script>
+
 
   <script>
     function updateTaskbarClock() {
@@ -588,7 +638,7 @@ restartBtn.id = 'restartBtn';
 restartBtn.style.padding = '10px 20px';
 restartBtn.style.fontSize = '13px';  // font size set to 13 pixels
 restartBtn.style.cursor = 'pointer';
-restartBtn.style.marginTop = '595px';
+restartBtn.style.marginTop = '515px';
 
 document.body.appendChild(restartBtn);
 
@@ -597,7 +647,7 @@ restartBtn.addEventListener('click', () => {
 });
 
     applyTheme('classic');
-  </script>
+  </script><
 
 <script>
   // Set background image directly on body after theme is applied
