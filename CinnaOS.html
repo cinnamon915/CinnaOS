@@ -881,5 +881,41 @@ restartBtn.addEventListener('click', () => {
     }
   });
 </script>
+
+<script>
+  let cinnaCoins = parseInt(localStorage.getItem("cinnaCoins")) || 0;
+
+  function updateCoinDisplay() {
+    const coinEl = document.getElementById("coin-display");
+    if (coinEl) {
+      coinEl.innerText = "💰 CinnaCoins: " + cinnaCoins;
+      localStorage.setItem("cinnaCoins", cinnaCoins);
+    }
+  }
+
+  function addCoins(amount) {
+    cinnaCoins += amount;
+    updateCoinDisplay();
+  }
+
+  function spendCoins(amount) {
+    if (cinnaCoins >= amount) {
+      cinnaCoins -= amount;
+      updateCoinDisplay();
+      return true;
+    } else {
+      alert("Not enough CinnaCoins!");
+      return false;
+    }
+  }
+
+  // Run after the page fully loads (without overwriting other onload scripts)
+  document.addEventListener("DOMContentLoaded", () => {
+    addCoins(5); // Daily login bonus
+    updateCoinDisplay();
+  });
+</script>
+
+
 </body>
 </html>
