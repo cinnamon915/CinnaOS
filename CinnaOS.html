@@ -916,6 +916,71 @@ restartBtn.addEventListener('click', () => {
   });
 </script>
 
+<script>
+  // ====== CinnaCoins System ======
+  let cinnaCoins = parseInt(localStorage.getItem("cinnaCoins")) || 0;
+
+  function updateCoinDisplay() {
+    const coinEl = document.getElementById("coin-display");
+    if (coinEl) {
+      coinEl.innerText = "💰 CinnaCoins: " + cinnaCoins;
+      localStorage.setItem("cinnaCoins", cinnaCoins);
+    }
+    const storeBalance = document.getElementById("store-balance");
+    if (storeBalance) {
+      storeBalance.innerText = cinnaCoins;
+    }
+  }
+
+  function addCoins(amount) {
+    cinnaCoins += amount;
+    updateCoinDisplay();
+  }
+
+  function spendCoins(amount) {
+    if (cinnaCoins >= amount) {
+      cinnaCoins -= amount;
+      updateCoinDisplay();
+      return true;
+    } else {
+      alert("Not enough CinnaCoins!");
+      return false;
+    }
+  }
+
+  // ====== Rewards for opening apps ======
+  function rewardForApp(appName) {
+    if (appName === "README") {
+      addCoins(20);
+    } else {
+      addCoins(10);
+    }
+  }
+
+  // ====== Open Apps (generic) ======
+  function openApp(appName) {
+    const appId = appName.toLowerCase();
+    const appWindow = document.getElementById(appId);
+    if (appWindow) {
+      appWindow.style.display = "block";
+      rewardForApp(appName);
+    }
+  }
+
+  // ====== Open CinnaStore ======
+  function openCinnaStore() {
+    document.getElementById("cinnastore").style.display = "block";
+    updateCoinDisplay();
+    rewardForApp("CinnaStore"); // +10 coins
+  }
+
+  // ====== Daily login bonus ======
+  document.addEventListener("DOMContentLoaded", () => {
+    addCoins(5); // daily bonus
+    updateCoinDisplay();
+  });
+</script>
+
 
 </body>
 </html>
